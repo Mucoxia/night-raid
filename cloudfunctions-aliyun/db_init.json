@@ -1,0 +1,52 @@
+// 在本文件中可配置云数据库初始化，数据格式见：https://uniapp.dcloud.io/uniCloud/quickstart?id=db-init
+// 编写完毕后对本文件点右键，可按配置规则创建表和添加数据
+{
+    "user": { // 用户表
+        "data": [ 
+           {
+                "_id": "12039242",//工号
+               "name": "xial11",//名字
+			   "score": "0",//积分
+			   "role":"2",//角色  0:报修 1:维修人员 2:管理员
+			   "tokenSecret":"",//密钥
+			   "userInfo":"",//用户信息 包含用户的唯一标识
+			   "exp":""//用户最近一次登陆时间
+			   
+			   
+           }
+        ],
+        "index": [{ // 索引
+            "IndexName": "index_id", // 索引名称
+            "MgoKeySchema": { // 索引规则
+                "MgoIndexKeys": [{
+                    "Name": "_id", // 索引字段
+                    "Direction": "1" // 索引方向，1：ASC-升序，-1：DESC-降序
+                }],
+                "MgoIsUnique": false // 索引是否唯一
+            }
+        }]
+    },"order": { // 订单表
+        "data": [ 
+           {
+                "_id": "1",//订单号
+               "repairer_id": "1",//报修人
+			   "maintainer_id": "1",//接单者
+			   "detail":"",//故障详情
+			   "type":"",//订单状态 0:未接单 1:已接单 2:完成修复 3:未完成修复 
+			   "duration":"",//报修时长
+			   "time":""//创建订单时间 
+           }
+        ],
+        "index": [{ // 索引
+            "IndexName": "index_id", // 索引名称
+            "MgoKeySchema": { // 索引规则
+                "MgoIndexKeys": [{
+                    "Name": "_id", // 索引字段
+                    "Direction": "1" // 索引方向，1：ASC-升序，-1：DESC-降序
+                }],
+                "MgoIsUnique": false // 索引是否唯一
+            }
+        }]
+    }
+	
+}
