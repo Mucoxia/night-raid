@@ -292,12 +292,20 @@ async function login(event) {
     userUpdateResult = await db.collection('user').add({
       ...userInfo,
       tokenSecret,
+	  role:'-1',
+	  score:'0',
+	  jobNumber:'',
+	  name:'',
       exp: Date.now() + tokenExp$1
     });
   } else {
     userUpdateResult = await db.collection('user').doc(userInDB.data[0]._id).set({
       ...userInfo,
       tokenSecret,
+	  role:'-1',
+	  score:'0',
+	  jobNumber:'',
+	  name:'',
       exp: Date.now() + tokenExp$1
     });
   }

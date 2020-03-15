@@ -285,6 +285,7 @@ async function signUp(event) {
       ...userInfo,
       password: encryptPassword$1(password),
       tokenSecret,
+	  role,
       exp: Date.now() + tokenExp$1
     });
   } else {
