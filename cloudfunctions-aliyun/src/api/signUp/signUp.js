@@ -29,6 +29,7 @@ async function signUp(event) {
       ...userInfo,
       password: encryptPassword(password),
       tokenSecret,
+	  role,
       exp: Date.now() + tokenExp
     })
   } else {
