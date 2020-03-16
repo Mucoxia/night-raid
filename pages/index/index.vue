@@ -1,14 +1,11 @@
 <template>
-	<view class="container">
-		<view class="form">
-			<input type="text" value="" placeholder="用户ID" v-model="userId" />
-			<input type="text" value="" placeholder="密码" password="true" v-model="password" />
-			<button type="primary" @click="signUp">注册</button>
-			<button type="primary" @click="signIn">登录</button>
-			<!-- #ifdef MP-WEIXIN -->
-			<button type="primary" @click="loginMp">微信登录</button>
-			<!-- #endif -->
-			<button type="primary" @click="validateToken">token验证</button>
+	<view class="content white">
+		<view class="picWrapper">
+			<image class="picMode" style="width: 100px;height:100px;" src="../../static/img/baoxiupic.png"></image>
+			<text class="baoxiuText">报修管家</text>
+		</view>
+		<view class="btn-row">
+			<button class="loginButton" type="primary" @click="validateToken">微信用户一键登录</button>
 		</view>
 	</view>
 </template>
@@ -22,89 +19,32 @@
 			}
 		},
 		methods: {
-			signUp() {
-				const {
-					userId,
-					password
-				} = this
-				if (userId.length < 6 || password.length < 6) {
-					uni.showModal({
-						content: '用户名密码长度均不能小于6',
-						showCancel: false
-					})
-					return
-				}
-				uni.showLoading({
-					title: '注册中...'
-				})
-				uniCloud.callFunction({
-					name: 'signUp',
-					data: {
-						userId,
-						password
-					},
-				}).then((res) => {
-					console.log(res);
-					uni.hideLoading()
-					if (res.result.status !== 0) {
-						return Promise.reject(new Error(res.result.msg))
-					}
-					uni.setStorageSync('token', res.result.token)
-					uni.showModal({
-						content: '注册成功，token已存储',
-						showCancel: false
-					})
-				}).catch((err) => {
-					console.log(err);
-					uni.hideLoading()
-					uni.showModal({
-						content: '注册失败，' + err.message,
-						showCancel: false
-					})
-				})
-			},
-			signIn() {
-				const {
-					userId,
-					password
-				} = this
-				if (userId.length < 6 || password.length < 6) {
-					uni.showModal({
-						content: '用户名密码长度均不能小于6',
-						showCancel: false
-					})
-					return
-				}
+			validateToken() {
 				uni.showLoading({
 					title: '登录中...'
 				})
 				uniCloud.callFunction({
-					name: 'signIn',
+					name: 'validateToken',
 					data: {
-						userId,
-						password
-					},
-				}).then((res) => {
-					console.log(res);
-					uni.hideLoading()
-					if (res.result.status !== 0) {
-						return Promise.reject(new Error(res.result.msg))
+						token: uni.getStorageSync('token') // token最好不要每次从storage内取，本示例为了简化演示代码才这么写
 					}
-					uni.setStorageSync('token', res.result.token)
-					uni.showModal({
-						content: '登录成功，token已存储',
-						showCancel: false
-					})
+				}).then((res) => {
+					this.loginMp()
+					// console.log(res);
+					// uni.hideLoading()
+					// uni.showModal({
+					// 	content: res.result.msg,
+					// 	showCancel: false
+					// })
 				}).catch((err) => {
-					console.log(err);
+					this.loginMp()
 					uni.hideLoading()
 					uni.showModal({
-						content: '登录失败，' + err.message,
+						content: '请求云函数发生错误，' + err.message,
 						showCancel: false
 					})
 				})
 			},
-			// #ifdef MP-WEIXIN
 			loginMp() {
 				uni.showLoading({
 					title: '登录中...'
@@ -159,35 +99,39 @@
 					})
 				})
 			},
-			// #endif
-			validateToken() {
-				uni.showLoading({
-					title: '加载中...'
-				});
-				uniCloud.callFunction({
-					name: 'validateToken',
-					data: {
-						token: uni.getStorageSync('token') // token最好不要每次从storage内取，本示例为了简化演示代码才这么写
-					}
-				}).then((res) => {
-					console.log(res);
-					uni.hideLoading()
-					uni.showModal({
-						content: res.result.msg,
-						showCancel: false
-					})
-				}).catch((err) => {
-					uni.hideLoading()
-					uni.showModal({
-						content: '请求云函数发生错误，' + err.message,
-						showCancel: false
-					})
-				})
-			},
+			
 		}
 	}
 </script>
 
 <style>
-
+	.picWrapper{
+		background-color: #ffffff;
+		margin-top: 20px;
+		width: 100%;
+		height: 20%;
+		text-align: center;
+		margin-bottom: 60px;
+	}
+	.picMode{
+		max-width: 100%;
+		height: auto;
+		display: block;
+		margin: 0 auto;
+	}
+	.white{
+		background-color: #ffffff;
+	}
+	.baoxiuText{
+		display: block;
+		margin-top: 20px;
+		font-weight: bold;
+		font-size: large;
+		color: #555555;
+	}
+	.loginButton{
+		background-color: #0FAEFF;
+		font-weight: bold;
+	}
+	
 </style>
