@@ -5,7 +5,7 @@
 			<text class="baoxiuText">报修管家</text>
 		</view>
 		<view class="btn-row">
-			<button class="loginButton" type="primary" @click="validateToken">微信用户一键登录</button>
+			<button open-type="getUserInfo" @getuserinfo="bindGetUserInfo" class="loginButton" type="primary" @click="validateToken" >微信用户一键登录</button>
 		</view>
 	</view>
 </template>
@@ -19,6 +19,30 @@
 			}
 		},
 		methods: {
+			bindGetUserInfo:function(e){
+			        if (e.detail.userInfo) {
+			            //用户按了允许授权按钮
+			            var that = this;
+			            // 获取到用户的信息了，打印到控制台上看下
+			            console.log("用户的信息如下：");
+			            console.log(e.detail.userInfo);
+						uni.setStorageSync('userInfo', e.detail.userInfo)
+			        } else {
+			            //用户按了拒绝按钮
+			            wx.showModal({
+			                title: '警告',
+			                content: '您点击了拒绝授权，将无法进入小程序，请授权之后再进入!!!',
+			                showCancel: false,
+			                confirmText: '返回授权',
+			                success: function(res) {
+			                    // 用户没有授权成功，不需要改变 isHide 的值
+			                    if (res.confirm) {
+			                        console.log('用户点击了“返回授权”');
+			                    }
+			                }
+			            });
+			        }
+				},
 			validateToken() {
 				uni.showLoading({
 					title: '登录中...'
@@ -30,12 +54,6 @@
 					}
 				}).then((res) => {
 					this.loginMp()
-					// console.log(res);
-					// uni.hideLoading()
-					// uni.showModal({
-					// 	content: res.result.msg,
-					// 	showCancel: false
-					// })
 				}).catch((err) => {
 					this.loginMp()
 					uni.hideLoading()
@@ -43,6 +61,29 @@
 						content: '请求云函数发生错误，' + err.message,
 						showCancel: false
 					})
+				})
+				uni.getSetting({
+					provider:uni.getProvider(),
+					success:function(res){
+						console.log('success get Setting')
+						if (res.authSetting['scope.userInfo']) {
+						    uni.getUserInfo({
+								provider:"weixin",
+						        success: function(res) {
+						        // 用户已经授权过
+								console.log("1111111");
+								console.log(res);
+								uni.setStorageSync('userInfo', res.userInfo)
+								
+						        }
+						    });
+						} else {
+							console.log('没有授权')				
+						}
+					},
+					fail:function(res){
+						console.log(res)	
+					}
 				})
 			},
 			loginMp() {
@@ -63,7 +104,11 @@
 					if (res.result.status !== 0) {
 						return Promise.reject(new Error(res.result.msg))
 					}
+					res.result.userId;
 					uni.setStorageSync('token', res.result.token)
+					uni.setStorageSync("openid",res.result.userInfo)
+					console.log('token and openid')
+					console.log(res)
 					uni.showModal({
 						content: '登录成功，token已存储',
 						showCancel: false,
@@ -90,7 +135,7 @@
 							if (e.code) {
 								resolve(e.code)
 							} else {
-								reject(new Error('微信登录失败'))
+								reject(new Error('微信登录失败1'))
 							}
 						},
 						fail(e) {
@@ -130,7 +175,7 @@
 		color: #555555;
 	}
 	.loginButton{
-		background-color: #0FAEFF;
+		background-color: #0000fb;
 		font-weight: bold;
 	}
 	
