@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view style="width: 100%;">
 		<view v-if='user' class="outer">
 			<form @submit="formSubmit" @reset="formReset">
 				<view class="uni-form-item uni-column">
@@ -47,7 +47,7 @@
 		</view>
 		<view v-else>
 			<template>
-				<mescroll-body class = "mescrollRef" ref="mescrollRef" @init="mescrollInit" @down="downCallback" @up="upCallback">
+				<mescroll-body ref="mescrollRef" @init="mescrollInit" @down="downCallback" @up="upCallback">
 					<good-list :list="goods"></good-list>
 				</mescroll-body>
 			</template>
@@ -73,14 +73,15 @@
 			/*上拉加载的回调: 其中page.num:当前页 从1开始, page.size:每页数据条数,默认10 */
 			upCallback(page) {
 				//联网加载数据
-				apiOrders(page.num, page.size, this.isGoodsEdit).then(curPageData => {
+				apiOrders(page.num, page.size).then(curPageData => {
+					console.log(curPageData.result.msg)
 					//联网成功的回调,隐藏下拉刷新和上拉加载的状态;
 					//mescroll会根据传的参数,自动判断列表如果无任何数据,则提示空;列表无下一页数据,则提示无更多数据;
 					//方法二(推荐): 后台接口有返回列表的总数据量 totalSize
 					this.mescroll.endBySize(curPageData.length, totalSize); //必传参数(当前页的数据个数, 总数据量)
 					//设置列表数据
 					if (page.num == 1) this.goods = []; //如果是第一页需手动制空列表
-					this.goods = this.goods.concat(curPageData); //追加新数据
+					this.goods = this.goods.concat(curPageData.result.msg); //追加新数据
 				}).catch(() => {
 					//联网失败, 结束加载
 					this.mescroll.endErr();
@@ -198,11 +199,8 @@
 </style>
 
 <style>
+	
 	/*说明*/
-	.mescroll-upwarp{
-		margin: 0 auto;
-		width: 100%;
-	}
 	.notice-warp {
 		font-size: 26upx;
 		padding: 40upx 0;
