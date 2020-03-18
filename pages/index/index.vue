@@ -71,7 +71,6 @@
 								provider:"weixin",
 						        success: function(res) {
 						        // 用户已经授权过
-								console.log("1111111");
 								console.log(res);
 								uni.setStorageSync('userInfo', res.userInfo)
 								
@@ -113,9 +112,9 @@
 						content: '登录成功，token已存储',
 						showCancel: false,
 						success() {
-							uni.navigateTo({
-								url: '/pages/wxpay/wxpay'
-							})
+							uni.switchTab({
+							    url: '/pages/home/userHome'
+							});
 						}
 					})
 				}).catch((err) => {
@@ -135,7 +134,7 @@
 							if (e.code) {
 								resolve(e.code)
 							} else {
-								reject(new Error('微信登录失败1'))
+								reject(new Error('微信登录失败'))
 							}
 						},
 						fail(e) {

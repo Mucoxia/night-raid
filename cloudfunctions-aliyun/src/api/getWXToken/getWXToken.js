@@ -5,11 +5,12 @@ const {
 
 async function login(event) {
 	let data = {
+		grant_type: 'client_credential',
 		appid: wxConfig.appid,
 		secret: wxConfig.appSecret,
 	}
 	const res = await uniCloud.httpclient.request(
-		'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=APPID&secret=APPSECRET', { //获取小程序全局唯一后台接口调用凭据（access_token）
+		'https://api.weixin.qq.com/cgi-bin/token', { //获取小程序全局唯一后台接口调用凭据（access_token）
 			method: 'GET',
 			data,
 			dataType: 'json'
