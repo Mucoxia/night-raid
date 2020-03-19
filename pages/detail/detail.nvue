@@ -1,33 +1,46 @@
 <template>
-	<view class="banner">
-		<view class="nameContent backColor">
-			<text class="nameText">名字{{username}}</text>
-		</view>
-		<view class="secondContent backColor">
-			<view class="secondLeft">
-				<text>故障设备:  {{thing}}</text>
+	<view>
+		<view v-for="pd in list" :key="pd._id">
+			<view class="banner">
+				<view class="nameContent backColor">
+					<text class="nameText">名字{{pd.maintainer_id}}</text>
+				</view>
+				<view class="secondContent backColor">
+					<view class="secondLeft">
+						<text>故障设备: {{thing}}</text>
+					</view>
+					<view class="secondRight backColor">
+						<text>地址: {{adress}}</text>
+						<div class="secondImg"></div>
+					</view>
+				</view>
+				<view class="thirdContent backColor">
+					<text>电脑{{problem}}</text>
+				</view>
+				<view class="detailContent backColor">
+					<text>详细描述...</text>
+					<div class="detailImg"></div>
+				</view>
+				<view class="otherContent">
+					<text class="otherText">已报修{{time}}</text>
+					<button class="otherButton">立即处理</button>
+				</view>
 			</view>
-			<view class="secondRight backColor">
-				<text>地址:  {{adress}}</text>
-				<div  class="secondImg"></div>
-			</view>
-		</view>
-		<view class="thirdContent backColor">
-			<text>电脑{{problem}}</text>
-		</view>
-		<view class="detailContent backColor">
-			<text>详细描述...</text>
-			<div  class="detailImg"></div>
-		</view>
-		<view class="otherContent">
-			<text class="otherText">已报修{{time}}</text>
-			<button class="otherButton">立即处理</button>
 		</view>
 	</view>
 </template>
 
 <script>
-	
+	export default {
+		props: {
+			list: {
+				type: Array,
+			}
+		},
+		mounted() {
+			console.log(this.list)
+		}
+	}
 </script>
 
 <style>
@@ -42,17 +55,17 @@
 		background-color: #f9f9f9;
 	}
 
-	view{
+	view {
 		text-overflow: ellipsis;
 		overflow: hidden;
 	}
-	
-	text{
-		white-space:nowrap;
+
+	text {
+		white-space: nowrap;
 		text-overflow: ellipsis;
-		overflow:hidden;
+		overflow: hidden;
 	}
-	
+
 	.nameContent {
 		position: absolute;
 		left: 30upx;
@@ -60,11 +73,11 @@
 		height: 30upx;
 		width: 500upx;
 	}
-	
+
 	.nameText {
 		font-weight: bold;
 	}
-	
+
 	.secondContent {
 		position: absolute;
 		left: 30upx;
@@ -74,7 +87,7 @@
 		justify-content: center;
 		width: 630upx;
 	}
-	
+
 	.secondLeft {
 		position: absolute;
 		left: 0upx;
@@ -83,7 +96,7 @@
 		width: 160upx;
 		flex-direction: row;
 	}
-	
+
 	.secondRight {
 		position: absolute;
 		right: 0upx;
@@ -92,7 +105,7 @@
 		width: 200upx;
 		flex-direction: row;
 	}
-	
+
 	.secondImg {
 		background: url(../../static/img/logo.png) no-repeat;
 		background-size: cover;
@@ -101,7 +114,7 @@
 		height: 30upx;
 		width: 30upx;
 	}
-	
+
 	.thirdContent {
 		position: absolute;
 		left: 30upx;
@@ -111,7 +124,7 @@
 		justify-content: center;
 		width: 630upx;
 	}
-	
+
 	.detailContent {
 		position: absolute;
 		left: 30upx;
@@ -122,7 +135,7 @@
 		width: 630upx;
 		border-bottom: solid 0.5px #ddd;
 	}
-	
+
 	.detailImg {
 		background: url(../../static/img/logo.png) no-repeat;
 		background-size: cover;
@@ -132,7 +145,7 @@
 		height: 130upx;
 		width: 130upx;
 	}
-	
+
 	.otherContent {
 		position: absolute;
 		left: 30upx;
@@ -142,13 +155,13 @@
 		justify-content: center;
 		width: 630upx;
 	}
-	
+
 	.otherText {
 		font-size: 27upx;
 		font-weight: bold;
 		color: #777;
 	}
-	
+
 	.otherButton {
 		position: absolute;
 		right: 0upx;
@@ -162,11 +175,11 @@
 		color: blue;
 		border-radius: 10upx;
 	}
-	
+
 	.backColor {
 		background-color: #f4f4f4;
 	}
-	
+
 	.title-text {
 		font-size: 32upx;
 		font-weight: 400;

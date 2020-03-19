@@ -48,16 +48,20 @@
 		<view v-else>
 			<template>
 				<mescroll-body ref="mescrollRef" @init="mescrollInit" @down="downCallback" @up="upCallback">
-					<good-list :list="goods"></good-list>
+					<detail :list="goods"></detail>
 				</mescroll-body>
 			</template>
 		</view>
 	</view>
 </template>
 <script>
-	import {apiOrders} from '../../api/requestOrder.js'
+	import {
+		apiOrders
+	} from '../../api/requestOrder.js'
+	import detail from '../detail/detail.nvue'
 	export default {
 		components: {
+			detail
 		},
 		data() {
 			return {
@@ -74,14 +78,14 @@
 			upCallback(page) {
 				//联网加载数据
 				apiOrders(page.num, page.size).then(curPageData => {
-					console.log(curPageData.result.msg)
 					//联网成功的回调,隐藏下拉刷新和上拉加载的状态;
-					//mescroll会根据传的参数,自动判断列表如果无任何数据,则提示空;列表无下一页数据,则提示无更多数据;
+					//mescroll会根据传的参数,自动判断列表如果无任何数据,则提示空,列表无下一页数据,则提示无更多数据;
 					//方法二(推荐): 后台接口有返回列表的总数据量 totalSize
 					this.mescroll.endBySize(curPageData.length, totalSize); //必传参数(当前页的数据个数, 总数据量)
 					//设置列表数据
 					if (page.num == 1) this.goods = []; //如果是第一页需手动制空列表
 					this.goods = this.goods.concat(curPageData.result.msg); //追加新数据
+					console.log(this.goods)
 				}).catch(() => {
 					//联网失败, 结束加载
 					this.mescroll.endErr();
@@ -199,7 +203,6 @@
 </style>
 
 <style>
-	
 	/*说明*/
 	.notice-warp {
 		font-size: 26upx;
