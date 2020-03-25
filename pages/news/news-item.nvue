@@ -1,0 +1,264 @@
+<template>
+    <view class="media-item view" v-if="newsItem.title" @click="click" >
+		<view class="view title-content-name" :style="{flexDirection:'row'}">
+			<text class="media-title3" >{{newsItem.title}}</text>
+		</view>
+		<view class="view title-content" :style="{flexDirection:'row'}">
+			<text class="media-title2" >故障设备：{{newsItem.title}}</text>
+			<view class="addressContent">
+				<text class="media-title2" >地址：{{newsItem.title}}</text>
+				<image :fade-show="false" class="image-list3"
+				    v-if="newsItem.image_url" src="../../static/img/phone.png" @click="makePhoneCall('114')"></image>
+			</view>
+		    
+		</view>
+		<view class="view title-content" :style="{flexDirection:'row'}">
+			<text class="media-title3" >{{newsItem.title}}</text>
+		</view>
+        <view class="view info-content" :style="{flexDirection:'column'}">
+            <text class="media-title" >{{newsItem.title}}</text>
+            <view v-if="newsItem.image_list || newsItem.image_url" class="image-section flex-row">
+                <image :fade-show="false" class="image-list2"
+                    v-if="newsItem.image_url" :src="newsItem.image_url" @click="clickImg(newsItem.image_url)"></image>
+            </view>
+        </view>
+        <view class="media-foot flex-row">
+            <view class="media-info flex-row">
+                <text class="info-text">报修时间：{{newsItem.datetime}}</text>
+            </view>
+            <view class="close-view" @click='handle()'>
+				<text class="info-text">{{handleText}}</text>
+            </view>
+        </view>
+        <view class="media-item-line" style="position: absolute;"></view>
+    </view>
+</template>
+
+<script>
+    export default {
+        props: {
+            newsItem: {
+                type: Object,
+                default: function(e) {
+                    return {}
+                }
+            }
+        },
+        methods: {
+            click() {
+                this.$emit('click');
+            },
+            close(e) {
+                e.stopPropagation();
+                this.$emit('close');
+            },
+			clickImg(url) {
+				uni.previewImage({
+				            urls: [url],
+				            longPressActions: {
+				                itemList: ['发送给朋友', '保存图片', '收藏'],
+				                success: function(data) {
+									 console.log('选中了第' + (data.tapIndex + 1) + '个按钮,第' + (data.index + 1) + '张图片');
+				                },
+				                fail: function(err) {
+				                    console.log(err.errMsg);
+				                }
+				            }
+				})
+			},
+			makePhoneCall(phoneNumber){
+				uni.makePhoneCall({
+				    phoneNumber: this.phoneNumber //仅为示例
+				});
+			},
+        },
+		data() {  
+			return {
+				phoneNumber:'123456789',
+				handleText:'立即处理',
+		    };  
+		}  
+    }
+</script>
+
+<style scoped>
+    .view {
+        flex-direction: column;
+		font-family: 宋体;
+    }
+
+    .flex-row {
+        flex-direction: row;
+    }
+
+    .flex-col {
+        flex-direction: column;
+    }
+
+    .list-cell {
+        padding: 0 30upx;
+    }
+
+    .uni-list-cell-hover {
+        background-color: #eeeeee;
+    }
+
+    .media-item {
+        position: relative;
+        flex: 1;
+        flex-direction: column;
+        padding: 20upx 30upx 21upx 30upx;
+    }
+
+    .media-item-line {
+        position: absolute;
+        left: 30upx;
+        right: 30upx;
+        bottom: 0;
+        height: 1upx;
+        background-color: #ebebeb;
+    }
+
+    .media-image-right {
+        flex-direction: row;
+    }
+
+    .media-image-left {
+        flex-direction: row-reverse;
+    }
+
+    .media-title {
+        flex: 1;
+    }
+
+    .media-title {
+        font-size: 30upx;
+        color: #555555;
+    }
+
+    .media-title2 {
+        lines: 1;
+        text-overflow: ellipsis;
+		white-space: nowrap;
+		overflow: hidden;
+        font-size: 28upx;
+		line-height: 50upx;
+		width: 320upx;
+        color: #555555;
+    }
+	
+	.media-title3 {
+	    lines: 1;
+	    text-overflow: ellipsis;
+		white-space: nowrap;
+		overflow: hidden;
+	    font-size: 28upx;
+	    color: #555555;
+	}
+
+	.title-content {
+		background-color: #f4f4f4;
+		margin-bottom: 20upx;
+		justify-content: space-between;
+		border-radius: 10upx;
+	}
+	
+	.info-content {
+		background-color: #f4f4f4;
+		border-radius: 10upx;
+	}
+	
+	.title-content-name {
+		justify-content: space-between;
+		margin-bottom: 40upx;
+		font-weight: bold;
+	}
+	
+	.addressContent {
+		flex-direction: row;
+		justify-content: space-between;
+		width: 300upx;
+	}
+
+    .image-section {
+        margin-top: 20upx;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .image-section-right {
+        margin-top: 0upx;
+        margin-left: 10upx;
+        width: 225upx;
+        height: 146upx;
+    }
+
+    .image-section-left {
+        margin-top: 0upx;
+        margin-right: 10upx;
+        width: 225upx;
+        height: 146upx;
+    }
+
+    .image-list1 {
+        width: 690upx;
+        height: 481upx;
+    }
+
+    .image-list2 {
+        width: 225upx;
+        height: 146upx;
+    }
+	
+	.image-list3 {
+	    width: 60upx;
+	    height: 50upx;
+	}
+	
+    .media-info {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .info-text {
+        color: #999999;
+        font-size: 24upx;
+    }
+
+    .media-foot {
+        margin-top: 25upx;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .close-view {
+        position: relative;
+        align-items: center;
+        flex-direction: row;
+        width: 150upx;
+        height: 60upx;
+        line-height: 30upx;
+        border-width: 1upx;
+        border-style: solid;
+        border-color: #aaaaaa;
+        border-radius: 4px;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .close-l {
+        position: absolute;
+        width: 18upx;
+        height: 1upx;
+        background-color: #aaaaaa;
+    }
+
+    .close-h {
+        transform: rotate(45deg);
+    }
+
+    .close-v {
+        transform: rotate(-45deg);
+    }
+</style>

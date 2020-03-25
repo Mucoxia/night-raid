@@ -64,6 +64,7 @@ async function login(event) {
     return {
       status: 0,
       token,
+	  userInfo,
       msg: '登录成功'
     }
   }
