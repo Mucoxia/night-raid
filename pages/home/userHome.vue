@@ -1,5 +1,8 @@
 <template>
 	<view class="container">
+		<view class='upload-picture-loading' v-if='showPictureLoading'>
+			<cmd-circle type="circle" :percent="uploadPicturePercent" :width='40' font-color="#000000" :font-size="10"></cmd-circle>
+		</view>
 		<view v-if="user" class="outer">
 			<form @submit="formSubmit" @reset="formReset">
 				<view class="uni-form-item uni-column">
@@ -42,6 +45,13 @@
 							<input name="detail" class="detailInput" placeholder="请输入详细描述" placeholder-class="placeholder" />
 						</div>
 						<img class="img" src="../../static/home/upload_picture.png" @click="uploadPicture" />
+						<view class='detail-img-wrapper'>
+							<view class='detail-img-outer' v-for="(url,index) in pictureUrls" :key='index' >
+							<img  class='detail-img' :src='url'/>
+							<img class='detail-delete-img' src='../../static/home/delete.png' @click='handleDelete(index)'/>
+							</view>
+							
+						</view>
 					</div>
 				</view>
 				<view class="uni-btn-v"><button form-type="submit" class="submit_btn">提交</button></view>
@@ -49,182 +59,264 @@
 		</view>
 		<view v-else>
 			<template>
-				<mescroll-body ref="mescrollRef" @init="mescrollInit" @down="downCallback" @up="upCallback"><detail :list="goods"></detail></mescroll-body>
+				<mescroll-body ref="mescrollRef" @init="mescrollInit" @down="downCallback" @up="upCallback">
+					<detail :list="goods"></detail>
+				</mescroll-body>
 			</template>
 		</view>
 	</view>
 </template>
 <script>
-import { apiOrders } from '../../api/requestOrder.js';
-import detail from '../detail/detail.nvue';
-export default {
-	components: {
-		detail
-	},
-	data() {
-		return {
-			goods: [], // 数据列表
-			isGoodsEdit: false, // 是否加载编辑后的数据
-			deviceArray: ['电脑', '软件', '系统'],
-			addressArray: ['4楼', '5楼', '6楼', '7楼', '8楼', '12楼', '13楼'],
-			deviceIndex: 0,
-			addressIndex: 0,
-			user: true
-		};
-	},
-	methods: {
-		/*上拉加载的回调: 其中page.num:当前页 从1开始, page.size:每页数据条数,默认10 */
-		upCallback(page) {
-			//联网加载数据
-			apiOrders(page.num, page.size)
-				.then(curPageData => {
-					//联网成功的回调,隐藏下拉刷新和上拉加载的状态;
-					//mescroll会根据传的参数,自动判断列表如果无任何数据,则提示空,列表无下一页数据,则提示无更多数据;
-					//方法二(推荐): 后台接口有返回列表的总数据量 totalSize
-					this.mescroll.endBySize(curPageData.length, totalSize); //必传参数(当前页的数据个数, 总数据量)
-					//设置列表数据
-					if (page.num == 1) this.goods = []; //如果是第一页需手动制空列表
-					this.goods = this.goods.concat(curPageData.result.msg); //追加新数据
-					console.log(this.goods);
-				})
-				.catch(() => {
-					//联网失败, 结束加载
-					this.mescroll.endErr();
-				});
-		},
-		formSubmit: function(e) {
-			var formdata = e.detail.value;
-			formdata.device = this.array[formdata.device];
-			uni.showLoading({
-				title: '创建报修单中...'
-			});
-			const data = JSON.stringify(formdata);
-			uniCloud
-				.callFunction({
-					name: 'order',
-					data: {
-						openId,
-						token,
-						data
-					}
-				})
-				.then(res => {
-					console.log(res);
-					uni.hideLoading();
-					if (res.result.status !== 0) {
-						return Promise.reject(new Error(res.result.msg));
-					}
-					uni.setStorageSync('token', res.result.token);
-					uni.showModal({
-						content: '创建报修单成功',
-						showCancel: false
-					});
-				})
-				.catch(err => {
-					console.log(err);
-					uni.hideLoading();
-					uni.showModal({
-						content: '创建报修单失败，' + err.message,
-						showCancel: false
-					});
-				});
-		},
+	import {
+		apiOrders
+	} from '../../api/requestOrder.js';
+	import detail from '../detail/detail.nvue';
+	import cmdCircle from "@/components/cmd-circle/cmd-circle.vue"
 
-		bindDevicePickerChange(e) {
-			this.deviceIndex = e.target.value;
+
+	export default {
+		components: {
+			detail,
+			cmdCircle
 		},
-		bindAddressPickerChange(e) {
-			this.addressIndex = e.target.value;
+		data() {
+			return {
+				goods: [], // 数据列表
+				isGoodsEdit: false, // 是否加载编辑后的数据
+				deviceArray: ['电脑', '软件', '系统'],
+				addressArray: ['4楼', '5楼', '6楼', '7楼', '8楼', '12楼', '13楼'],
+				deviceIndex: 0,
+				addressIndex: 0,
+				user: true,
+				uploadPicturePercent: 40,
+				pictureUrls: [],
+				showPictureLoading: false,
+			};
 		},
-		uploadPicture() {
-			uni.authorize({
-				scope: 'scope.camera', //获取拍摄权限
-				success() {
-					uni.chooseImage({
-						count: 6, //默认9 //最多选择的图片数
-						sizeType: ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
-						success: function(res) {
-							console.log(JSON.stringify(res.tempFilePaths));
-						}
+		methods: {
+			handleDelete(index){
+				console.log(index)
+				this.pictureUrls.splice(index,1)
+			},
+			/*上拉加载的回调: 其中page.num:当前页 从1开始, page.size:每页数据条数,默认10 */
+			upCallback(page) {
+				//联网加载数据
+				apiOrders(page.num, page.size)
+					.then(curPageData => {
+						//联网成功的回调,隐藏下拉刷新和上拉加载的状态;
+						//mescroll会根据传的参数,自动判断列表如果无任何数据,则提示空,列表无下一页数据,则提示无更多数据;
+						//方法二(推荐): 后台接口有返回列表的总数据量 totalSize
+						this.mescroll.endBySize(curPageData.length, totalSize); //必传参数(当前页的数据个数, 总数据量)
+						//设置列表数据
+						if (page.num == 1) this.goods = []; //如果是第一页需手动制空列表
+						this.goods = this.goods.concat(curPageData.result.msg); //追加新数据
+						console.log(this.goods);
+					})
+					.catch(() => {
+						//联网失败, 结束加载
+						this.mescroll.endErr();
 					});
-				}
-			});
+			},
+			formSubmit: function(e) {
+				var formdata = e.detail.value;
+				formdata.device = this.array[formdata.device];
+				formdata.picture = this.pictureUrls;
+				uni.showLoading({
+					title: '创建报修单中...'
+				});
+				const data = JSON.stringify(formdata);
+				uniCloud
+					.callFunction({
+						name: 'order',
+						data: {
+							openId,
+							token,
+							data
+						}
+					})
+					.then(res => {
+						console.log(res);
+						uni.hideLoading();
+						if (res.result.status !== 0) {
+							return Promise.reject(new Error(res.result.msg));
+						}
+						uni.setStorageSync('token', res.result.token);
+						uni.showModal({
+							content: '创建报修单成功',
+							showCancel: false
+						});
+					})
+					.catch(err => {
+						console.log(err);
+						uni.hideLoading();
+						uni.showModal({
+							content: '创建报修单失败，' + err.message,
+							showCancel: false
+						});
+					});
+			},
+
+			bindDevicePickerChange(e) {
+				this.deviceIndex = e.target.value;
+			},
+			bindAddressPickerChange(e) {
+				this.addressIndex = e.target.value;
+			},
+			onUploadProgress(progressEvent) {
+				console.log(progressEvent);
+				var percentCompleted = Math.round(
+					(progressEvent.loaded * 100) / progressEvent.total
+				);
+			},
+			uploadPicture() {
+				uni.authorize({
+					scope: 'scope.camera', //获取拍摄权限
+					success: () => {
+						uni.chooseImage({
+							count: 1,
+							success: (res) => {
+								if (res.tempFilePaths.length > 0) {
+									let filePath = res.tempFilePaths[0]
+									 uniCloud.uploadFile({
+									                filePath: filePath
+									               ,
+									                    onUploadProgress: (progressEvent)=> {
+									                      console.log(progressEvent);
+									                      var percentCompleted = Math.round(
+									                        (progressEvent.loaded * 100) / progressEvent.total
+									                      );
+														  this.uploadPicturePercent = percentCompleted
+														  
+									                },
+									                success:(res)=> {
+														this.pictureUrls.push(res.fileID)
+														console.log(this.pictureUrls)
+													},
+									                fail:() =>{
+														uni.showModal({
+															content: '请求云函数发生错误，' + err.message,
+															showCancel: false
+														})
+													},
+									                complete() {}
+									            });
+									
+								}
+
+							}
+						});
+					}
+				});
+			}
 		}
-	}
-};
+	};
 </script>
 
 <style lang="scss" scoped>
-.container {
-	background-color: #e6e6e6;
-	width: 100%;
-	flex-direction: column;
-	align-items: center;
-}
-.detail {
-	display: flex;
-	flex-direction: column;
-	justify-content: space-around;
-	height: 180px;
-
-	.img {
-		width: 30px;
-		height: 30px;
-		padding-left: 30px;
-		padding-top: 30px;
-	}
-}
-
-.label {
-	padding-right: 10px;
-	height: 40px;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	.detailInput {
-		flex: 1;
-		font-size: 14px;
-	}
-	.uni-input {
-		text-align: right;
-		padding-right: 20px;
-	}
-
-	.text {
-		padding: 0 20px;
-		font-size: 14px;
-	}
-
-	.img {
+	.detail-delete-img{
 		position: absolute;
-		width: 20px;
-		height: 20px;
-		right: 10px;
+		height:18px;
+		width: 18px;
+		right:12px;
+		top:12px;
+	}
+	.detail-img-outer{
+		position:relative;
+		padding: 20px 20px;
+	}
+	.detail-img-wrapper{
+		display: flex;
+		align-items: center;
+		.detail-img{
+			width: 60px;
+			height: 60px;
+		}
+	}
+	.upload-picture-loading {
+		position: absolute;
+		left: 0;
+		top: 0;
+		margin: auto;
+		right: 0;
+		bottom: 0;
+		height: 100%;
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
 	}
 
-	.input {
-		text-align: right;
-		flex: 1;
-		font-size: 14px;
+	.container {
+		background-color: #e6e6e6;
+		width: 100%;
 	}
 
-	.placeholder {
-		font-size: 12px;
+	.detail {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-around;
+		height: 250px;
+
+		.img {
+			width: 30px;
+			height: 30px;
+			padding-left: 30px;
+			padding-top: 30px;
+		}
 	}
-}
 
-.submit_btn {
-	width: 100%;
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	background-color: #1296db;
-	color: white;
-}
+	.label {
+		padding-right: 10px;
+		height: 40px;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		.detailInput {
+			flex: 1;
+			font-size: 14px;
+		}
 
-.outer {
-	border-radius: 5px;
-	background-color: #fff;
-	margin: 10px 10px 0px 10px;
-}
+		.uni-input {
+			text-align: right;
+			padding-right: 20px;
+		}
+
+		.text {
+			padding: 0 20px;
+			font-size: 14px;
+		}
+
+		.img {
+			position: absolute;
+			width: 20px;
+			height: 20px;
+			right: 10px;
+		}
+
+		.input {
+			text-align: right;
+			flex: 1;
+			font-size: 14px;
+		}
+
+		.placeholder {
+			font-size: 12px;
+		}
+	}
+
+	.submit_btn {
+		width: 100%;
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		background-color: #1296db;
+		color: white;
+	}
+
+	.outer {
+		border-radius: 5px;
+		background-color: #fff;
+		margin: 10px 10px 0px 10px;
+	}
 </style>

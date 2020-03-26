@@ -50,7 +50,7 @@
 				uniCloud.callFunction({
 					name: 'validateToken',
 					data: {
-						token: uni.getStorageSync('token') // token最好不要每次从storage内取，本示例为了简化演示代码才这么写
+						token: uni.getStorageSync('token') // token最好不要每次从storage内取
 					}
 				}).then((res) => {
 					this.loginMp()
