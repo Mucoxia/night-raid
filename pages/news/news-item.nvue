@@ -1,22 +1,19 @@
 <template>
-    <view class="media-item view" v-if="newsItem.title" @click="click" >
+    <view class="media-item view" >
 		<view class="view title-content-name" :style="{flexDirection:'row'}">
-			<text class="media-title3" >{{newsItem.title}}</text>
+			<text class="media-title3" >{{newsItem.contactName}}</text>
 		</view>
 		<view class="view title-content" :style="{flexDirection:'row'}">
-			<text class="media-title2" >故障设备：{{newsItem.title}}</text>
+			<text class="media-title2" >故障设备：{{newsItem.damagedObject}}</text>
 			<view class="addressContent">
-				<text class="media-title2" >地址：{{newsItem.title}}</text>
+				<text class="media-title2" >地址：{{newsItem.floor}}楼</text>
 				<image :fade-show="false" class="image-list3"
-				    v-if="newsItem.image_url" src="../../static/img/phone.png" @click="makePhoneCall('114')"></image>
+				    v-if="newsItem.phone" src="../../static/img/phone.png" @click="makePhoneCall(newsItem.phone)"></image>
 			</view>
 		    
 		</view>
-		<view class="view title-content" :style="{flexDirection:'row'}">
-			<text class="media-title3" >{{newsItem.title}}</text>
-		</view>
         <view class="view info-content" :style="{flexDirection:'column'}">
-            <text class="media-title" >{{newsItem.title}}</text>
+            <text class="media-title"  @click="goDetail(newsItem)" >{{newsItem.detail}}</text>
             <view v-if="newsItem.image_list || newsItem.image_url" class="image-section flex-row">
                 <image :fade-show="false" class="image-list2"
                     v-if="newsItem.image_url" :src="newsItem.image_url" @click="clickImg(newsItem.image_url)"></image>
@@ -44,6 +41,10 @@
                 }
             }
         },
+		onLoad() {
+			console.log('lalalalla')
+			console.log(this.newsItem)
+		},
         methods: {
             click() {
                 this.$emit('click');
@@ -71,6 +72,11 @@
 				    phoneNumber: this.phoneNumber //仅为示例
 				});
 			},
+			goDetail(detail) {
+				uni.navigateTo({
+					url: '/pages/detail/detail?query=' + encodeURIComponent(JSON.stringify(detail))
+				});
+			},
         },
 		data() {  
 			return {
@@ -84,7 +90,6 @@
 <style scoped>
     .view {
         flex-direction: column;
-		font-family: 宋体;
     }
 
     .flex-row {
@@ -132,7 +137,11 @@
     }
 
     .media-title {
-        font-size: 30upx;
+		lines: 1;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		overflow: hidden;
+        font-size: 35upx;
         color: #555555;
     }
 
@@ -141,20 +150,11 @@
         text-overflow: ellipsis;
 		white-space: nowrap;
 		overflow: hidden;
-        font-size: 28upx;
+        font-size: 33upx;
 		line-height: 50upx;
 		width: 320upx;
         color: #555555;
     }
-	
-	.media-title3 {
-	    lines: 1;
-	    text-overflow: ellipsis;
-		white-space: nowrap;
-		overflow: hidden;
-	    font-size: 28upx;
-	    color: #555555;
-	}
 
 	.title-content {
 		background-color: #f4f4f4;
@@ -164,6 +164,7 @@
 	}
 	
 	.info-content {
+		min-height:180upx;
 		background-color: #f4f4f4;
 		border-radius: 10upx;
 	}
@@ -222,7 +223,7 @@
 
     .info-text {
         color: #999999;
-        font-size: 24upx;
+        font-size: 29upx;
     }
 
     .media-foot {

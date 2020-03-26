@@ -4,29 +4,41 @@
 				<view class=" uni-column">
 					<div class="label">
 						<span class="text">地址</span>
-						<span class="text">{{banner.source}}</span>
+						<span class="text">{{banner.floor}}楼</span>
 						<!-- <span class="text">{{content.address}}</span> -->
 					</div>
 				</view>
 				<view class=" uni-column">
 					<div class="label">
 						<span class="text">联系人</span>
-						<span class="text">{{banner.source}}</span>
+						<span class="text">{{banner.contactName}}</span>
 						<!-- <span class="text">{{content.name}}</span> -->
 					</div>
 				</view>
 				<view class=" uni-column">
 					<div class="label">
 						<span class="text">手机</span>
-						<span class="text">{{banner.source}}</span>
-						<!-- <span class="text">{{content.number}}</span> -->
+						<span class="text">{{banner.phone}}</span>
+					</div>
+				</view>
+				<view class=" uni-column">
+					<div class="label">
+						<span class="text">拨打电话</span>
+						<image :fade-show="false" class="image-list3"
+						 src="../../static/img/phone.png" @click="makePhoneCall(banner.phone)"></image>
 					</div>
 				</view>
 				<view class=" uni-column">
 					<div class="label">
 						<span class="text">故障设备</span>
-						<span class="text">{{banner.source}}</span>
+						<span class="text">{{banner.damagedObject}}</span>
 						<!-- <span class="text">{{content.thing}}</span> -->
+					</div>
+				</view>
+				<view class=" uni-column">
+					<div class="label">
+						<span class="text">保修时间</span>
+						<span class="text">{{banner.datetime}}</span>
 					</div>
 				</view>
 				<view class=" uni-column">
@@ -35,7 +47,7 @@
 				<view class=" uni-column">
 					<div class="detail">
 						<div class="label" style="border-bottom: none;">
-							<text name="detail" class="detailInput">{{content.detail}}</text>
+							<text name="detail" class="detailInput">{{banner.detail}}</text>
 							<!-- <text name="detail" class="detailInput">{{content.detail}}</text> -->
 						</div>
 						<img class="img" :src="banner.image_url" @click="clickImg(banner.image_url)" />
@@ -51,7 +63,6 @@
 		data() {
 			return {
 				banner: {},
-				content: [],
 				handle: '',
 			}
 		},
@@ -80,7 +91,13 @@
 			clickButton() {
 				alert("按了")
 				console.log("按了")
-			}
+			},
+			makePhoneCall(phoneNumber){
+				
+				uni.makePhoneCall({
+				    phoneNumber: phoneNumber //仅为示例
+				});
+			},
 		}
 	}
 </script>
@@ -120,6 +137,7 @@
 		.detailInput {
 			flex: 1;
 			font-size: 14px;
+			padding: 0 20px;
 		}
 
 		.uni-input {
@@ -163,5 +181,11 @@
 		border-radius: 5px;
 		background-color: #fff;
 		margin: 10px 10px 0px 10px;
+	}
+	
+	.image-list3 {
+	    width: 50upx;
+	    height: 50upx;
+		padding-right: 20px
 	}
 </style>
