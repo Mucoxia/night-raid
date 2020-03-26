@@ -4,8 +4,8 @@
 			<image class="picMode" style="width: 100px;height:100px;" src="../../static/img/baoxiupic.png"></image>
 			<text class="baoxiuText">报修管家</text>
 		</view>
-		<view class="btn-row">
-			<button open-type="getUserInfo" @getuserinfo="bindGetUserInfo" class="loginButton" type="primary" @click="validateToken" >微信用户一键登录</button>
+		<view v-if='this.showLoginButton' class="btn-row">
+			<button open-type="getUserInfo" @getuserinfo="bindGetUserInfo" class="loginButton" type="primary" @click="loginMp" >微信用户一键登录</button>
 		</view>
 	</view>
 </template>
@@ -14,6 +14,7 @@
 	export default {
 		data() {
 			return {
+				showLoginButton: false,
 				userId: '',
 				password: ''
 			}
@@ -53,14 +54,12 @@
 						token: uni.getStorageSync('token') // token最好不要每次从storage内取
 					}
 				}).then((res) => {
-					this.loginMp()
-				}).catch((err) => {
-					this.loginMp()
 					uni.hideLoading()
-					uni.showModal({
-						content: '请求云函数发生错误，' + err.message,
-						showCancel: false
+					uni.navigateTo({
+						url: '/pages/wxpay/wxpay'
 					})
+				}).catch((err) => {
+					this.showLoginButton = true;
 				})
 				uni.getSetting({
 					provider:uni.getProvider(),

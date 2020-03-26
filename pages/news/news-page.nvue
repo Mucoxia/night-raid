@@ -1,0 +1,288 @@
+<template>
+	<view class="page-news">
+		<!-- #ifdef MP-QQ -->
+		<scroll-view class="listview" style="flex: 1;" enableBackToTop="true" scroll-y @scrolltolower="loadMore()">
+			<view v-for="(item, index) in dataList" :key="item.id">
+				<news-item :newsItem="item" @close="closeItem(index)" ></news-item>
+			</view>
+			<view class="loading-more" v-if="isLoading || dataList.length > 4">
+				<text class="loading-more-text">{{loadingText}}</text>
+			</view>
+		</scroll-view>
+		<!-- #endif -->
+		<!-- QQ multipleSlots=true bug -->
+		<!-- #ifndef MP-QQ -->
+		<uni-list class="listview" :enableBackToTop="true" :scroll-y="true" @scrolltolower="loadMore()">
+			<uni-refresh class="refresh" @refresh="onrefresh" @pullingdown="onpullingdown" :display="refreshing ? 'show' : 'hide'">
+				<div class="refresh-view">
+					<image class="refresh-icon" :src="refreshIcon" :style="{width: (refreshing || pulling) ? 0: '32px'}" :class="{'refresh-icon-active': refreshFlag}"></image>
+					<uni-load-more v-if="refreshing" class="loading-icon" status="loading" :contentText="loadingMoreText"></uni-load-more>
+					<text class="loading-text">{{refreshText}}</text>
+				</div>
+			</uni-refresh>
+			<uni-cell v-for="(item, index) in dataList" :key="item.id">
+				<news-item :newsItem="item" @close="closeItem(index)" ></news-item>
+			</uni-cell>
+			<uni-cell v-if="isLoading || dataList.length > 4">
+				<view class="loading-more">
+					<text class="loading-more-text">{{loadingText}}</text>
+				</view>
+			</uni-cell>
+		</uni-list>
+		<!-- #endif -->
+		<no-data class="no-data" v-if="isNoData" @retry="loadMore"></no-data>
+	</view>
+</template>
+
+<script>
+	import uniList from '@/components/uni-list.vue';
+	import uniCell from '@/components/uni-cell.vue';
+	import uniRefresh from '@/components/uni-refresh.vue';
+	import uniLoadMore from '@/components/uni-load-more.vue';
+	import noData from '@/components/nodata.nvue';
+	import newsItem from './news-item.nvue';
+
+	export default {
+		components: {
+			uniList,
+			uniCell,
+			uniRefresh,
+			uniLoadMore,
+			noData,
+			newsItem
+		},
+		props: {
+			nid: {
+				type: [Number, String],
+				default: ''
+			}
+		},
+		data() {
+			return {
+				pageNum: 1,
+				dataList: [],
+				pulling: false,
+				refreshing: false,
+				refreshFlag: false,
+				refreshText: "",
+				isLoading: false,
+				loadingText: '加载中...',
+				isNoData: false,
+				pulling: false,
+				loadingMoreText: {
+					contentdown: '',
+					contentrefresh: '',
+					contentnomore: ''
+				},
+				refreshIcon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAB5QTFRFcHBw3Nzct7e39vb2ycnJioqK7e3tpqam29vb////D8oK7wAAAAp0Uk5T////////////ALLMLM8AAABxSURBVHja7JVBDoAgDASrjqj//7CJBi90iyYeOHTPMwmFZrHjYyyFYYUy1bwUZqtJIYVxhf1a6u0R7iUvWsCcrEtwJHp8MwMdvh2amHduiZD3rpWId9+BgPd7Cc2LIkPyqvlQvKxKBJ//Qwq/CacAAwDUv0a0YuKhzgAAAABJRU5ErkJggg=="
+			}
+		},
+		created() {
+			this.pullTimer = null;
+			this.requestParams = {
+				// columnId:this.openId,
+				// pageId:this.pageId,
+				pageSize: 10,
+				pageNum: this.pageNum,
+			};
+		},
+		methods: {
+			loadData(refresh) {
+				if (this.isLoading) {
+					return;
+				}
+
+				this.isLoading = true;
+				this.isNoData = false;
+
+				uniCloud
+					.callFunction({
+						name: 'getOrder',
+						data: this.requestParams,
+					})
+					.then(res => {
+						this.isLoading = false;
+						if (refresh) {
+							this.refreshing = false;
+							this.refreshFlag = false;
+							this.refreshText = "已刷新";
+							if (this.pullTimer) {
+								clearTimeout(this.pullTimer);
+							}
+							this.pullTimer = setTimeout(() => {
+								this.pulling = false;
+							}, 1000);
+						}
+						this.isNoData = (res.result.msg.length <= 0);
+						const data_list = res.result.msg.map((news) => {
+							return {
+								contactName: news.contactName,
+								damagedObject: news.damagedObject,
+								detail: news.detail,
+								datetime: news.time.slice(0, 4) + '/'
+											+ news.time.slice(4,6) + '/' 
+											+ news.time.slice(6,8) + ' '
+											+ news.time.slice(8,10) + ':'
+											+ news.time.slice(10),
+								phone: news.phone,
+								image_url: news.cover,
+								floor: news.floor,
+							};
+						});
+						console.log(data_list)
+						if (refresh) {
+							this.dataList = data_list;
+							this.pageNum = 1;
+						} else {
+							this.dataList = this.dataList.concat(data_list);
+							this.pageNum += 1;
+						}
+					})
+					.catch((err) => {
+						this.isLoading = false;
+						if (refresh) {
+							this.refreshing = false;
+							this.refreshFlag = false;
+							this.refreshText = "已刷新";
+							if (this.pullTimer) {
+								clearTimeout(this.pullTimer);
+							}
+							this.pullTimer = setTimeout(() => {
+								this.pulling = false;
+							}, 1000);
+						}
+						//结束加载
+						if (this.dataList.length == 0) {
+							this.isNoData = true;
+						}
+						uni.hideLoading();
+						uni.showModal({
+							content: '数据加载失败，' + err.message,
+							showCancel: false
+						});
+					});
+			},
+			loadMore(e) {
+				this.loadData();
+			},
+			refreshData() {
+				if (this.isLoading) {
+					return;
+				}
+				this.pulling = true;
+				this.refreshing = true;
+				this.refreshText = "正在刷新...";
+				this.loadData(true);
+			},
+			onrefresh(e) {
+				this.refreshData();
+			},
+			onpullingdown(e) {
+				if (this.refreshing) {
+					return;
+				}
+
+				this.pulling = false;
+				if (Math.abs(e.pullingDistance) > Math.abs(e.viewHeight)) {
+					this.refreshFlag = true;
+					this.refreshText = "释放立即刷新";
+				} else {
+					this.refreshFlag = false;
+					this.refreshText = "下拉可以刷新";
+				}
+			},
+		}
+	}
+</script>
+
+<style scoped>
+	.no-data {
+		flex: 1;
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 10;
+	}
+
+	.page-news {
+		flex: 1;
+		flex-direction: column;
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+	}
+
+	.listview {
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		/* #ifndef APP-NVUE */
+		display: flex;
+		flex-direction: column;
+		/* #endif */
+		/* #ifndef MP-ALIPAY */
+		flex-direction: column;
+		/* #endif */
+	}
+
+	.refresh {
+		justify-content: center;
+	}
+
+	.refresh-view {
+		/* #ifndef APP-NVUE */
+		display: flex;
+		/* #endif */
+		width: 750rpx;
+		height: 64px;
+		flex-direction: row;
+		flex-wrap: nowrap;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.refresh-icon {
+		width: 32px;
+		height: 32px;
+		transition-duration: .5s;
+		transition-property: transform;
+		transform: rotate(0deg);
+		transform-origin: 15px 15px;
+	}
+
+	.refresh-icon-active {
+		transform: rotate(180deg);
+	}
+
+	.loading-icon {
+		width: 28px;
+		height: 28px;
+		margin-right: 5px;
+		color: gray;
+	}
+
+	.loading-text {
+		margin-left: 2px;
+		font-size: 16px;
+		color: #999999;
+	}
+
+	.loading-more {
+		align-items: center;
+		justify-content: center;
+		padding-top: 14px;
+		padding-bottom: 14px;
+		text-align: center;
+	}
+
+	.loading-more-text {
+		font-size: 28upx;
+		color: #999;
+	}
+</style>
