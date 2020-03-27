@@ -58,8 +58,8 @@
 					}
 				}).then((res) => {
 					uni.hideLoading()
-					uni.navigateTo({
-						url: '/pages/wxpay/wxpay'
+					uni.switchTab({
+						url: '/pages/home/userHome'
 					})
 				}).catch((err) => {
 					uni.hideLoading()
@@ -116,9 +116,8 @@
 						showCancel: false,
 						success() {
 							uni.switchTab({
-							    url: '/pages/home/userHome'
-							});
-						}
+								url: '/pages/home/userHome'
+							})						}
 					})
 				}).catch((err) => {
 					console.log(err);
