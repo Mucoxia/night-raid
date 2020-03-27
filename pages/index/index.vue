@@ -19,6 +19,9 @@
 				password: ''
 			}
 		},
+		onLoad() {
+			this.validateToken()
+		},
 		methods: {
 			bindGetUserInfo:function(e){
 			        if (e.detail.userInfo) {
@@ -59,6 +62,7 @@
 						url: '/pages/wxpay/wxpay'
 					})
 				}).catch((err) => {
+					uni.hideLoading()
 					this.showLoginButton = true;
 				})
 				uni.getSetting({
