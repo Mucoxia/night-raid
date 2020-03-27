@@ -4,7 +4,7 @@
 				<view class=" uni-column">
 					<div class="label">
 						<span class="text">地址</span>
-						<span class="text">{{banner.floor}}楼</span>
+						<span class="text">{{banner.floor}}</span>
 						<!-- <span class="text">{{content.address}}</span> -->
 					</div>
 				</view>
@@ -50,7 +50,10 @@
 							<text name="detail" class="detailInput">{{banner.detail}}</text>
 							<!-- <text name="detail" class="detailInput">{{content.detail}}</text> -->
 						</div>
-						<img class="img" :src="banner.image_url" @click="clickImg(banner.image_url)" />
+						<view v-for="(item) in banner.img_url" :key="item.id">
+							<img class="img" :src="item" @click="clickImg(item)" />
+						</view>
+						
 					</div>
 				</view>
 				<view class="uni-btn-v"><button class="submit_btn" @click="clickButton()">提交</button></view>

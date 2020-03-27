@@ -58,7 +58,6 @@
 					}
 				}).then((res) => {
 					uni.hideLoading()
-					console.log("succ")
 					uni.switchTab({
 						url: '/pages/home/userHome'
 					})
@@ -121,9 +120,8 @@
 						showCancel: false,
 						success() {
 							uni.switchTab({
-							    url: '/pages/home/userHome'
-							});
-						}
+								url: '/pages/home/userHome'
+							})						}
 					})
 				}).catch((err) => {
 					console.log(err);

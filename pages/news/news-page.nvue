@@ -3,7 +3,7 @@
 		<!-- #ifdef MP-QQ -->
 		<scroll-view class="listview" style="flex: 1;" enableBackToTop="true" scroll-y @scrolltolower="loadMore()">
 			<view v-for="(item, index) in dataList" :key="item.id">
-				<news-item :newsItem="item" @close="closeItem(index)" ></news-item>
+				<news-item :newsItem="item" @close="closeItem(index)"></news-item>
 			</view>
 			<view class="loading-more" v-if="isLoading || dataList.length > 4">
 				<text class="loading-more-text">{{loadingText}}</text>
@@ -21,7 +21,7 @@
 				</div>
 			</uni-refresh>
 			<uni-cell v-for="(item, index) in dataList" :key="item.id">
-				<news-item :newsItem="item" @close="closeItem(index)" ></news-item>
+				<news-item :newsItem="item" @close="closeItem(index)"></news-item>
 			</uni-cell>
 			<uni-cell v-if="isLoading || dataList.length > 4">
 				<view class="loading-more">
@@ -114,16 +114,17 @@
 							}, 1000);
 						}
 						this.isNoData = (res.result.msg.length <= 0);
+						console.log(res.result.msg)
 						const data_list = res.result.msg.map((news) => {
 							return {
 								contactName: news.contactName,
 								damagedObject: news.damagedObject,
 								detail: news.detail,
-								datetime: news.time.slice(0, 4) + '/'
-											+ news.time.slice(4,6) + '/' 
-											+ news.time.slice(6,8) + ' '
-											+ news.time.slice(8,10) + ':'
-											+ news.time.slice(10),
+								datetime: (new Date(news.create_time)).getFullYear() + '/' +
+									(new Date(news.create_time)).getMonth() + '/' +
+									(new Date(news.create_time)).getDate() + ' ' +
+									(new Date(news.create_time)).getHours() + ':' +
+									(new Date(news.create_time)).getMinutes(),
 								phone: news.phone,
 								image_url: news.cover,
 								floor: news.floor,
@@ -190,6 +191,43 @@
 					this.refreshFlag = false;
 					this.refreshText = "下拉可以刷新";
 				}
+			},
+			closeItem(index) {
+				uni.showModal({
+					content: '确认接单？',
+					success: (res) => {
+						if (res.confirm) {
+							uniCloud
+								.callFunction({
+									name: 'takeOrder',
+									data: {
+										token: uni.getStorageSync('token'),
+										orderId: newsItem.order_id,
+									},
+								})
+								.then(res => {
+									if (res.result.status === '200') {
+										this.dataList.splice(index, 1);
+										uni.showModal({
+											content: res.result.msg
+										});
+									} else {
+										uni.showModal({
+											content: res.result.msg
+										});
+									}
+
+								})
+								.catch((err) => {
+									uni.showModal({
+										content: '发送失败，请稍后重试。错误信息：' + err.message,
+										showCancel: false
+									});
+								});
+
+						}
+					}
+				})
 			},
 		}
 	}
