@@ -4,7 +4,7 @@
 			<image class="picMode" style="width: 100px;height:100px;" src="../../static/img/baoxiupic.png"></image>
 			<text class="baoxiuText">报修管家</text>
 		</view>
-		<view v-if='this.showLoginButton' class="btn-row">
+		<view v-if='showLoginButton' class="btn-row">
 			<button open-type="getUserInfo" @getuserinfo="bindGetUserInfo" class="loginButton" type="primary" @click="loginMp" >微信用户一键登录</button>
 		</view>
 	</view>
@@ -58,16 +58,18 @@
 					}
 				}).then((res) => {
 					uni.hideLoading()
-					uni.navigateTo({
-						url: '/pages/wxpay/wxpay'
+					console.log("succ")
+					uni.switchTab({
+						url: '/pages/home/userHome'
 					})
+					this.showLoginButton = true;
 				}).catch((err) => {
 					uni.hideLoading()
 					this.showLoginButton = true;
 				})
 				uni.getSetting({
 					provider:uni.getProvider(),
-					success:function(res){
+					success:(res)=>{
 						console.log('success get Setting')
 						if (res.authSetting['scope.userInfo']) {
 						    uni.getUserInfo({
@@ -80,11 +82,14 @@
 						        }
 						    });
 						} else {
-							console.log('没有授权')				
+							console.log('没有授权')	
+						   this.showLoginButton = true;
 						}
 					},
-					fail:function(res){
+					fail:(res)=>{
 						console.log(res)	
+						this.showLoginButton = true;
+						
 					}
 				})
 			},

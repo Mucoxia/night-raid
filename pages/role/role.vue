@@ -17,6 +17,7 @@
 
 <script>
 import cmdAvatar from '@/components/cmd-avatar/cmd-avatar.vue';
+import { responseCode } from '../../common/constants.js'
 export default {
 	data() {
 		return {};
@@ -38,7 +39,7 @@ export default {
 				.then(res => {
 					console.log(res);
 					uni.hideLoading();
-					if (res.result.status !== 0) {
+					if (res.result.status !== responseCode.success) {
 						return Promise.reject(new Error(res.result.msg));
 					}
 					uni.showModal({
