@@ -58,8 +58,8 @@
 					}
 				}).then((res) => {
 					uni.hideLoading()
-					uni.navigateTo({
-						url: '/pages/wxpay/wxpay'
+					uni.switchTab({
+						url: '/pages/home/userHome'
 					})
 				}).catch((err) => {
 					uni.hideLoading()
@@ -116,8 +116,8 @@
 						content: '登录成功，token已存储',
 						showCancel: false,
 						success() {
-							uni.navigateTo({
-								url: '/pages/wxpay/wxpay'
+							uni.switchTab({
+								url: '/pages/home/userHome'
 							})
 						}
 					})

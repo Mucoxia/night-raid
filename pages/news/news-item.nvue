@@ -6,7 +6,7 @@
 		<view class="view title-content" :style="{flexDirection:'row'}">
 			<text class="media-title2" >故障设备：{{newsItem.damagedObject}}</text>
 			<view class="addressContent">
-				<text class="media-title2" >地址：{{newsItem.floor}}楼</text>
+				<text class="media-title2" >地址：{{newsItem.floor}}</text>
 				<image :fade-show="false" class="image-list3"
 				    v-if="newsItem.phone" src="../../static/img/phone.png" @click="makePhoneCall(newsItem.phone)"></image>
 			</view>
@@ -14,9 +14,12 @@
 		</view>
         <view class="view info-content" :style="{flexDirection:'column'}">
             <text class="media-title"  @click="goDetail(newsItem)" >{{newsItem.detail}}</text>
-            <view v-if="newsItem.image_list || newsItem.image_url" class="image-section flex-row">
-                <image :fade-show="false" class="image-list2"
-                    v-if="newsItem.image_url" :src="newsItem.image_url" @click="clickImg(newsItem.image_url)"></image>
+            <view v-if="newsItem.image_list || newsItem.img_url" class="image-section flex-row">
+				<view v-for="(item) in newsItem.img_url" :key="item.id">
+					<image :fade-show="false" class="image-list2"
+					    v-if="item" :src="item" @click="clickImg(item)"></image>
+				</view>
+                
             </view>
         </view>
         <view class="media-foot flex-row">
@@ -41,17 +44,9 @@
                 }
             }
         },
-		onLoad() {
-			console.log('lalalalla')
-			console.log(this.newsItem)
-		},
         methods: {
             click() {
                 this.$emit('click');
-            },
-            close(e) {
-                e.stopPropagation();
-                this.$emit('close');
             },
 			clickImg(url) {
 				uni.previewImage({
@@ -77,10 +72,12 @@
 					url: '/pages/detail/detail?query=' + encodeURIComponent(JSON.stringify(detail))
 				});
 			},
+			handle() {
+				this.$emit('close');
+			}
         },
 		data() {  
 			return {
-				phoneNumber:'123456789',
 				handleText:'立即处理',
 		    };  
 		}  
