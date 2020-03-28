@@ -94,25 +94,6 @@
 				console.log(index)
 				this.pictureUrls.splice(index, 1)
 			},
-			/*上拉加载的回调: 其中page.num:当前页 从1开始, page.size:每页数据条数,默认10 */
-			upCallback(page) {
-				//联网加载数据
-				apiOrders(page.num, page.size)
-					.then(curPageData => {
-						//联网成功的回调,隐藏下拉刷新和上拉加载的状态;
-						//mescroll会根据传的参数,自动判断列表如果无任何数据,则提示空,列表无下一页数据,则提示无更多数据;
-						//方法二(推荐): 后台接口有返回列表的总数据量 totalSize
-						this.mescroll.endBySize(curPageData.length, totalSize); //必传参数(当前页的数据个数, 总数据量)
-						//设置列表数据
-						if (page.num == 1) this.goods = []; //如果是第一页需手动制空列表
-						this.goods = this.goods.concat(curPageData.result.msg); //追加新数据
-						console.log(this.goods);
-					})
-					.catch(() => {
-						//联网失败, 结束加载
-						this.mescroll.endErr();
-					});
-			},
 			formSubmit: function(e) {
 				var formdata = e.detail.value;
 				formdata.device = this.array[formdata.device];
