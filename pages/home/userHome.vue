@@ -57,6 +57,7 @@
 				<view class="uni-btn-v"><button form-type="submit" class="submit_btn">提交</button></view>
 			</form>
 		</view>
+		<orderlist v-else/>
 	</view>
 </template>
 <script>
@@ -65,16 +66,29 @@
 	import {
 		responseCode
 	} from "../../common/constants.js"
-
+	import orderlist from '../news/index.vue'
 
 	export default {
 		components: {
 			detail,
 			cmdCircle
 		},
+		onShow() {
+			uni.$on('setRole',(data)=>{
+				console.log('dasdas'+data.msg)
+				if(data.msg!=0){
+					this.user=false
+					console.log(this.user)
+					this.onLoad();
+					
+				}
+			   })
+			
+		},
 		onLoad() {
+			console.log('load')
+			
 			if (!this.user) {
-				console.log("jump")
 				uni.navigateTo({
 					url: '/pages/news/index'
 				});

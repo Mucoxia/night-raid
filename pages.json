@@ -30,11 +30,8 @@
 		{
 			"path": "pages/home/repairHome",
 			"style": {}
-		},
-		{
-			"path": "pages/news/index",
-			"style": {}
 		}
+		
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",

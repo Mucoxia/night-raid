@@ -58,10 +58,13 @@
 					}
 				}).then((res) => {
 					uni.hideLoading()
+					if(res.status===0){
 					uni.switchTab({
 						url: '/pages/home/userHome'
 					})
+					}else{
 					this.showLoginButton = true;
+					}
 				}).catch((err) => {
 					uni.hideLoading()
 					this.showLoginButton = true;

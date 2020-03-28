@@ -46,6 +46,10 @@ export default {
 						content: '选择角色成功',
 						showCancel: false
 					});
+					uni.setStorage({
+						role:role
+					})
+					uni.$emit('setRole',{msg:role})
 				})
 				.catch(err => {
 					console.log(err);
