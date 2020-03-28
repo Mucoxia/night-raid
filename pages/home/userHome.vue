@@ -75,6 +75,7 @@
 			cmdCircle,
 			orderList
 		},
+		
 		data() {
 			return {
 				goods: [], // 数据列表

@@ -44,12 +44,18 @@ export default {
 					}
 					uni.showModal({
 						content: '选择角色成功',
-						showCancel: false
+						showCancel: false,
+						success: () => {
+							uni.navigateBack();
+						}
 					});
 					uni.setStorage({
 						role:role
 					})
-					uni.$emit('setRole',{msg:role})
+					if(role===0){
+						
+					}
+
 				})
 				.catch(err => {
 					console.log(err);

@@ -11,6 +11,7 @@
 </template>
 
 <script>
+	import { responseCode } from '../../common/constants.js'
 	export default {
 		data() {
 			return {
@@ -110,7 +111,7 @@
 				}).then((res) => {
 					uni.hideLoading()
 					console.log(res);
-					if (res.result.status !== 0) {
+					if (res.result.status !== responseCode.success) {
 						return Promise.reject(new Error(res.result.msg))
 					}
 					res.result.userId;
@@ -123,7 +124,7 @@
 						showCancel: false,
 						success() {
 							uni.switchTab({
-								url: '/pages/home/userHome'
+								url: '/pages/home/home'
 							})						}
 					})
 				}).catch((err) => {

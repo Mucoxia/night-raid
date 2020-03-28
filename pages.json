@@ -32,7 +32,11 @@
 			"style": {}
 		}
 		
-	],
+	    ,{
+            "path" : "pages/home/home",
+            "style" : {}
+        }
+    ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "uni-app",
@@ -45,7 +49,7 @@
 		"borderStyle": "black",
 		"backgroundColor": "#F8F8F8",
 		"list": [{
-				"pagePath": "pages/home/userHome",
+				"pagePath": "pages/home/home",
 				"iconPath": "static/tabbar/repair.png",
 				"selectedIconPath": "static/tabbar/repair_selected.png",
 				"text": "报修"

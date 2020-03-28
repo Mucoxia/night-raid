@@ -351,7 +351,7 @@ async function setRole(event) {
 	}
 	return {
 		status: responseCode$1.failed,
-		msg: validateResult.openid
+		msg: '设置用户角色失败'
 	}
 }
 var main = setRole;
