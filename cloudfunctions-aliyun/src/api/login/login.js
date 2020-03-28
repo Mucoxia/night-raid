@@ -1,6 +1,9 @@
 const crypto = require('crypto')
 const jwt = require('jwt-simple')
 const {
+	responseCode,
+} = require('../../../../common/constants.js')
+const {
   wxConfig,
   tokenExp
 } = require('../../../../common/constants.js')
@@ -24,7 +27,7 @@ async function login(event) {
   const success = res.status === 200 && res.data && res.data.openid//获取用户的唯一标识
   if (!success) {
     return {
-      status: -1,
+      status: responseCode.failed,
       msg: '微信登录失败'
     }
   }
@@ -50,27 +53,34 @@ async function login(event) {
     userUpdateResult = await db.collection('user').add({
       ...userInfo,
       tokenSecret,
+	  role:'-1',
+	  score:'0',
+	  jobNumber:'',
+	  name:'',
       exp: Date.now() + tokenExp
     })
   } else {
     userUpdateResult = await db.collection('user').doc(userInDB.data[0]._id).set({
       ...userInfo,
       tokenSecret,
+	  role:'-1',
+	  score:'0',
+	  jobNumber:'',
+	  name:'',
       exp: Date.now() + tokenExp
     })
   }
 
   if (userUpdateResult.id || userUpdateResult.updated === 1) {
     return {
-      status: 0,
+      status: responseCode.success,
       token,
-	  userInfo,
       msg: '登录成功'
     }
   }
 
   return {
-    status: -1,
+    status: responseCode.failed,
     msg: '微信登录失败'
   }
 }

@@ -4,7 +4,7 @@
 			<image class="picMode" style="width: 100px;height:100px;" src="../../static/img/baoxiupic.png"></image>
 			<text class="baoxiuText">报修管家</text>
 		</view>
-		<view v-if='this.showLoginButton' class="btn-row">
+		<view v-if='showLoginButton' class="btn-row">
 			<button open-type="getUserInfo" @getuserinfo="bindGetUserInfo" class="loginButton" type="primary" @click="loginMp" >微信用户一键登录</button>
 		</view>
 	</view>
@@ -54,38 +54,44 @@
 				uniCloud.callFunction({
 					name: 'validateToken',
 					data: {
-						token: uni.getStorageSync('token') // token最好不要每次从storage内取，本示例为了简化演示代码才这么写
+						token: uni.getStorageSync('token') // token最好不要每次从storage内取
 					}
 				}).then((res) => {
 					uni.hideLoading()
+					if(res.status===0){
 					uni.switchTab({
 						url: '/pages/home/userHome'
 					})
+					}else{
+					this.showLoginButton = true;
+					}
 				}).catch((err) => {
 					uni.hideLoading()
 					this.showLoginButton = true;
 				})
 				uni.getSetting({
 					provider:uni.getProvider(),
-					success:function(res){
+					success:(res)=>{
 						console.log('success get Setting')
 						if (res.authSetting['scope.userInfo']) {
 						    uni.getUserInfo({
 								provider:"weixin",
 						        success: function(res) {
 						        // 用户已经授权过
-								console.log("1111111");
 								console.log(res);
 								uni.setStorageSync('userInfo', res.userInfo)
 								
 						        }
 						    });
 						} else {
-							console.log('没有授权')				
+							console.log('没有授权')	
+						   this.showLoginButton = true;
 						}
 					},
-					fail:function(res){
+					fail:(res)=>{
 						console.log(res)	
+						this.showLoginButton = true;
+						
 					}
 				})
 			},
@@ -118,8 +124,7 @@
 						success() {
 							uni.switchTab({
 								url: '/pages/home/userHome'
-							})
-						}
+							})						}
 					})
 				}).catch((err) => {
 					console.log(err);
@@ -138,7 +143,7 @@
 							if (e.code) {
 								resolve(e.code)
 							} else {
-								reject(new Error('微信登录失败1'))
+								reject(new Error('微信登录失败'))
 							}
 						},
 						fail(e) {

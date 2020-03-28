@@ -236,10 +236,32 @@ const passSecret = ''; //用于用户数据库密码加密的密钥，使用一�
 
 const tokenExp = 7200000;
 
+const qnDomain = 'q7lkmx6k8.bkt.clouddn.com';  //七牛云下载域名
+
+//订单状态码
+const orderState = {
+	initState: 0,//刚刚创建完成
+	received:1,//已接单状态
+	closed:2,//订单维修完成后关闭状态
+	refused:3,//订单被拒绝
+	service:4//维修中
+};
+
+//响应码
+const responseCode = {
+	success:200,//成功响应
+	needCertification:401,//token验证失败 需要认证
+	notFound:404,//资源未找到
+	failed:201,//失败响应
+};
+
 var constants = {
   wxConfig,
   passSecret,
-  tokenExp
+  tokenExp,
+  qnDomain,
+  orderState,
+  responseCode
 };
 
 const {
@@ -285,6 +307,7 @@ async function signUp(event) {
       ...userInfo,
       password: encryptPassword$1(password),
       tokenSecret,
+	  role,
       exp: Date.now() + tokenExp$1
     });
   } else {

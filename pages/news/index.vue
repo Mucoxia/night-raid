@@ -46,6 +46,9 @@
 		components: {
 			newsPage
 		},
+		onLoad() {
+			console.log("inininin")
+		},
 		data() {
 			return {
 				tabList: [{
@@ -246,7 +249,7 @@
 	}
 </script>
 
-<style>
+<style scoped>
 	/* #ifndef APP-PLUS */
 	page {
 		width: 100%;

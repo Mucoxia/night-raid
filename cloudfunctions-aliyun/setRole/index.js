@@ -6,6 +6,47 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var crypto = _interopDefault(require('crypto'));
 
+const wxConfig = {
+  appid: 'wxb22b3aca1ad6a55d', //微信小程序AppId
+  appSecret: 'd69fb6cf06f7dc6595517a2d602d470d', //微信小程序AppSecret
+  mchid: '', // 商户号
+  partnerKey: '' // key为商户平台设置的密钥key
+};
+
+const passSecret = ''; //用于用户数据库密码加密的密钥，使用一个比较长的随机字符串即可
+
+//上面的字段非常重要！！！
+
+const tokenExp = 7200000;
+
+const qnDomain = 'q7lkmx6k8.bkt.clouddn.com';  //七牛云下载域名
+
+//订单状态码
+const orderState = {
+	initState: 0,//刚刚创建完成
+	received:1,//已接单状态
+	closed:2,//订单维修完成后关闭状态
+	refused:3,//订单被拒绝
+	service:4//维修中
+};
+
+//响应码
+const responseCode = {
+	success:200,//成功响应
+	needCertification:401,//token验证失败 需要认证
+	notFound:404,//资源未找到
+	failed:201,//失败响应
+};
+
+var constants = {
+  wxConfig,
+  passSecret,
+  tokenExp,
+  qnDomain,
+  orderState,
+  responseCode
+};
+
 function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
@@ -223,137 +264,101 @@ function base64urlEscape(str) {
 
 var jwtSimple = jwt_1;
 
-const wxConfig = {
-  appid: 'wxb22b3aca1ad6a55d', //微信小程序AppId
-  appSecret: 'd69fb6cf06f7dc6595517a2d602d470d', //微信小程序AppSecret
-  mchid: '', // 商户号
-  partnerKey: '' // key为商户平台设置的密钥key
-};
-
-const passSecret = ''; //用于用户数据库密码加密的密钥，使用一个比较长的随机字符串即可
-
-//上面的字段非常重要！！！
-
-const tokenExp = 7200000;
-
-const qnDomain = 'q7lkmx6k8.bkt.clouddn.com';  //七牛云下载域名
-
-//订单状态码
-const orderState = {
-	initState: 0,//刚刚创建完成
-	received:1,//已接单状态
-	closed:2,//订单维修完成后关闭状态
-	refused:3,//订单被拒绝
-	service:4//维修中
-};
-
-//响应码
-const responseCode = {
-	success:200,//成功响应
-	needCertification:401,//token验证失败 需要认证
-	notFound:404,//资源未找到
-	failed:201,//失败响应
-};
-
-var constants = {
-  wxConfig,
-  passSecret,
-  tokenExp,
-  qnDomain,
-  orderState,
-  responseCode
-};
-
-const {
-	responseCode: responseCode$1,
-} = constants;
-const {
-  wxConfig: wxConfig$1,
-  tokenExp: tokenExp$1
-} = constants;
-
 const db = uniCloud.database();
-
-async function login(event) {
-  let data = {
-    appid: wxConfig$1.appid,
-    secret: wxConfig$1.appSecret,
-    js_code: event.code,
-    grant_type: 'authorization_code'
-  };
-
-  const res = await uniCloud.httpclient.request('https://api.weixin.qq.com/sns/jscode2session', { //调用微信的登录凭证校验
-    method: 'GET',
-    data,
-    dataType: 'json'
-  });
-
-  const success = res.status === 200 && res.data && res.data.openid;//获取用户的唯一标识
-  if (!success) {
+async function validateToken(token) {
+  const userFromToken = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+  const userInDB = await db.collection('user').where(userFromToken).get();
+  if (userInDB.data.length !== 1) {
     return {
-      status: responseCode$1.failed,
-      msg: '微信登录失败'
+      status: -1,
+      msg: '查无此人'
+    }
+  }
+  const userInfoDB = userInDB.data[0];
+  let userInfoDecode;
+
+  userInfoDecode = jwtSimple.decode(token, userInfoDB.tokenSecret);
+
+  function checkUser(userFromToken, userInfoDB) {
+    return Object.keys(userFromToken).every(function(item) {
+      return userFromToken[item] === userInfoDB[item] && userFromToken[item] === userInfoDecode[item]
+    })
+  }
+
+
+  if (userInfoDB.exp > Date.now() && checkUser(userFromToken, userInfoDB)) {
+    return {
+      status: 0,
+      openid: userInfoDB.openid,
+      userId: userInfoDB.userId,
+      msg: 'token验证成功'
     }
   }
 
-  const {
-    openid,
-    //session_key 暂不需要session_key
-  } = res.data;
-
-  let userInfo = {
-    openid
-  };
-
-  let tokenSecret = crypto.randomBytes(16).toString('hex'),
-    token = jwtSimple.encode(userInfo, tokenSecret);
-
-  const userInDB = await db.collection('user').where({
-    openid
-  }).get();
-
-  let userUpdateResult;
-  if (userInDB.data && userInDB.data.length === 0) {//如果用户表没有获得的唯一标识 就插入
-    userUpdateResult = await db.collection('user').add({
-      ...userInfo,
-      tokenSecret,
-	  role:'-1',
-	  score:'0',
-	  jobNumber:'',
-	  name:'',
-      exp: Date.now() + tokenExp$1
-    });
-  } else {
-    userUpdateResult = await db.collection('user').doc(userInDB.data[0]._id).set({
-      ...userInfo,
-      tokenSecret,
-	  role:'-1',
-	  score:'0',
-	  jobNumber:'',
-	  name:'',
-      exp: Date.now() + tokenExp$1
-    });
-  }
-
-  if (userUpdateResult.id || userUpdateResult.updated === 1) {
+  if (userInfoDB.exp < Date.now()) {
     return {
-      status: responseCode$1.success,
-      token,
-      msg: '登录成功'
+      status: -3,
+      msg: 'token已失效'
     }
   }
 
   return {
-    status: responseCode$1.failed,
-    msg: '微信登录失败'
+    status: -2,
+    msg: 'token无效'
   }
+
 }
 
-var main = login;
+var validateToken_1 = {
+  validateToken
+};
 
-var login_1 = {
+const db$1 = uniCloud.database();
+const {
+	responseCode: responseCode$1,
+} = constants;
+const {
+	validateToken: validateToken$1
+} = validateToken_1;
+async function setRole(event) {
+	const {
+		token,
+		role
+	} = event;
+	let validateResult;
+	try {
+		validateResult = await validateToken$1(token);
+	} catch (e) {
+		return {
+			status: responseCode$1.needCertification,
+			msg: 'token无效'
+		}
+	}
+	if (validateResult.status !== 0) {
+		return validateResult
+	}
+	let openid = validateResult.openid;
+	let roleUpdateResult = await db$1.collection('user').where({
+		openid
+	}).update({
+		role: role
+	});
+	if (roleUpdateResult.affectedDocs === 1) {
+		return {
+			status: responseCode$1.success,
+			msg: '设置用户角色成功'
+		}
+	}
+	return {
+		status: responseCode$1.failed,
+		msg: validateResult.openid
+	}
+}
+var main = setRole;
+
+var setRole_1 = {
 	main: main
 };
 
-exports.default = login_1;
+exports.default = setRole_1;
 exports.main = main;
