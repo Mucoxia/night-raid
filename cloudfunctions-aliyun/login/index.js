@@ -236,12 +236,37 @@ const passSecret = ''; //用于用户数据库密码加密的密钥，使用一�
 
 const tokenExp = 7200000;
 
+const qnDomain = 'q7lkmx6k8.bkt.clouddn.com';  //七牛云下载域名
+
+//订单状态码
+const orderState = {
+	initState: 0,//刚刚创建完成
+	received:1,//已接单状态
+	closed:2,//订单维修完成后关闭状态
+	refused:3,//订单被拒绝
+	service:4//维修中
+};
+
+//响应码
+const responseCode = {
+	success:200,//成功响应
+	needCertification:401,//token验证失败 需要认证
+	notFound:404,//资源未找到
+	failed:201,//失败响应
+};
+
 var constants = {
   wxConfig,
   passSecret,
-  tokenExp
+  tokenExp,
+  qnDomain,
+  orderState,
+  responseCode
 };
 
+const {
+	responseCode: responseCode$1,
+} = constants;
 const {
   wxConfig: wxConfig$1,
   tokenExp: tokenExp$1
@@ -266,7 +291,7 @@ async function login(event) {
   const success = res.status === 200 && res.data && res.data.openid;//获取用户的唯一标识
   if (!success) {
     return {
-      status: -1,
+      status: responseCode$1.failed,
       msg: '微信登录失败'
     }
   }
@@ -312,14 +337,14 @@ async function login(event) {
 
   if (userUpdateResult.id || userUpdateResult.updated === 1) {
     return {
-      status: 0,
+      status: responseCode$1.success,
       token,
       msg: '登录成功'
     }
   }
 
   return {
-    status: -1,
+    status: responseCode$1.failed,
     msg: '微信登录失败'
   }
 }

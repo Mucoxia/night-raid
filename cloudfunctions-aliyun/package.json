@@ -12,6 +12,8 @@
     "rollup-plugin-node-resolve": "^5.2.0"
   },
   "dependencies": {
-    "jwt-simple": "^0.5.6"
+    "jwt-simple": "^0.5.6",
+    "node-qiniu": "^6.2.0",
+    "qiniu": "^7.3.0"
   }
 }

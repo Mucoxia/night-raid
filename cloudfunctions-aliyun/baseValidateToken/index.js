@@ -223,6 +223,7 @@ function base64urlEscape(str) {
 
 var jwtSimple = jwt_1;
 
+//根据token验证  成功则返回openid 以及userid
 const db = uniCloud.database();
 async function validateToken(token) {
   const userFromToken = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());

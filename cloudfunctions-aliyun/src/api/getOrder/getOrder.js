@@ -1,36 +1,25 @@
 const {
-	validateToken
-} = require('../../utils/validateToken.js')
-
+	responseCode,
+	orderState
+} = require('../../../../common/constants.js') //查看订单无需登录
 const db = uniCloud.database()
 async function getOrder(event) {
-	//const token = event.token
 	const count = event.pageSize
 	const page = event.pageNum
 	const pageCount = 10
-	let validateResult
-	// try {
-	// 	validateResult = await validateToken(token)
-	// } catch (e) {
-	// 	return {
-	// 		status: -2,
-	// 		msg: 'token无效'
-	// 	}
-	// }
-	// if (validateResult.status !== 0) {
-	// 	return validateResult
-	// }
+	let type = orderState.initState
+	let res = await db.collection('order').where({ //只返回未接单的订单
+		type: type
+	}).limit(page * pageCount, count).get()
 
-	let res = await db.collection('order').limit(page * pageCount, count).get()
-	
 	if (res.data.length > 0) {
 		return {
-			status: 200,
+			status: responseCode.success,
 			msg: res.data
 		}
 	} else {
 		return {
-			status: 401,
+			status: responseCode.failed,
 			msg: '获取订单数据失败'
 		}
 	}
