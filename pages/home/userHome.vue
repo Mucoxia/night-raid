@@ -3,7 +3,7 @@
 		<view class='upload-picture-loading' v-if='showPictureLoading'>
 			<cmd-circle type="circle" :percent="uploadPicturePercent" :width='40' font-color="#000000" :font-size="10"></cmd-circle>
 		</view>
-		<view v-show ="user" class="outer">
+		<view v-show="user" class="outer">
 			<form @submit="formSubmit" @reset="formReset">
 				<view class="uni-form-item uni-column">
 					<div class="label">
@@ -46,11 +46,11 @@
 						</div>
 						<img class="img" src="../../static/home/upload_picture.png" @click="uploadPicture" />
 						<view class='detail-img-wrapper'>
-							<view class='detail-img-outer' v-for="(url,index) in pictureUrls" :key='index' >
-							<img  class='detail-img' :src='url'/>
-							<img class='detail-delete-img' src='../../static/home/delete.png' @click='handleDelete(index)'/>
+							<view class='detail-img-outer' v-for="(url,index) in pictureUrls" :key='index'>
+								<img class='detail-img' :src='url' />
+								<img class='detail-delete-img' src='../../static/home/delete.png' @click='handleDelete(index)' />
 							</view>
-							
+
 						</view>
 					</div>
 				</view>
@@ -91,28 +91,9 @@
 			};
 		},
 		methods: {
-			handleDelete(index){
+			handleDelete(index) {
 				console.log(index)
-				this.pictureUrls.splice(index,1)
-			},
-			/*上拉加载的回调: 其中page.num:当前页 从1开始, page.size:每页数据条数,默认10 */
-			upCallback(page) {
-				//联网加载数据
-				apiOrders(page.num, page.size)
-					.then(curPageData => {
-						//联网成功的回调,隐藏下拉刷新和上拉加载的状态;
-						//mescroll会根据传的参数,自动判断列表如果无任何数据,则提示空,列表无下一页数据,则提示无更多数据;
-						//方法二(推荐): 后台接口有返回列表的总数据量 totalSize
-						this.mescroll.endBySize(curPageData.length, totalSize); //必传参数(当前页的数据个数, 总数据量)
-						//设置列表数据
-						if (page.num == 1) this.goods = []; //如果是第一页需手动制空列表
-						this.goods = this.goods.concat(curPageData.result.msg); //追加新数据
-						console.log(this.goods);
-					})
-					.catch(() => {
-						//联网失败, 结束加载
-						this.mescroll.endErr();
-					});
+				this.pictureUrls.splice(index, 1)
 			},
 			formSubmit: function(e) {
 				var formdata = e.detail.value;
@@ -174,30 +155,29 @@
 							success: (res) => {
 								if (res.tempFilePaths.length > 0) {
 									let filePath = res.tempFilePaths[0]
-									 uniCloud.uploadFile({
-									                filePath: filePath
-									               ,
-									                    onUploadProgress: (progressEvent)=> {
-									                      console.log(progressEvent);
-									                      var percentCompleted = Math.round(
-									                        (progressEvent.loaded * 100) / progressEvent.total
-									                      );
-														  this.uploadPicturePercent = percentCompleted
-														  
-									                },
-									                success:(res)=> {
-														this.pictureUrls.push(res.fileID)
-														console.log(this.pictureUrls)
-													},
-									                fail:() =>{
-														uni.showModal({
-															content: '请求云函数发生错误，' + err.message,
-															showCancel: false
-														})
-													},
-									                complete() {}
-									            });
-									
+									uniCloud.uploadFile({
+										filePath: filePath,
+										onUploadProgress: (progressEvent) => {
+											console.log(progressEvent);
+											var percentCompleted = Math.round(
+												(progressEvent.loaded * 100) / progressEvent.total
+											);
+											this.uploadPicturePercent = percentCompleted
+
+										},
+										success: (res) => {
+											this.pictureUrls.push(res.fileID)
+											console.log(this.pictureUrls)
+										},
+										fail: () => {
+											uni.showModal({
+												content: '请求云函数发生错误，' + err.message,
+												showCancel: false
+											})
+										},
+										complete() {}
+									});
+
 								}
 
 							}
@@ -210,25 +190,29 @@
 </script>
 
 <style lang="scss" scoped>
-	.detail-delete-img{
+	.detail-delete-img {
 		position: absolute;
-		height:18px;
+		height: 18px;
 		width: 18px;
-		right:12px;
-		top:12px;
+		right: 12px;
+		top: 12px;
 	}
-	.detail-img-outer{
-		position:relative;
+
+	.detail-img-outer {
+		position: relative;
 		padding: 20px 20px;
 	}
-	.detail-img-wrapper{
+
+	.detail-img-wrapper {
 		display: flex;
 		align-items: center;
-		.detail-img{
+
+		.detail-img {
 			width: 60px;
 			height: 60px;
 		}
 	}
+
 	.upload-picture-loading {
 		position: absolute;
 		left: 0;
@@ -269,6 +253,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+
 		.detailInput {
 			flex: 1;
 			font-size: 14px;
@@ -316,8 +301,8 @@
 		background-color: #fff;
 		margin: 10px 10px 0px 10px;
 	}
-	
-	.orderContent{
+
+	.orderContent {
 		width: 100%;
 		height: 100%;
 	}
