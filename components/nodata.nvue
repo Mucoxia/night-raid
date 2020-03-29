@@ -7,7 +7,7 @@
 			<view class="icon-view"></view>
 			<view class="opera-view">
 				<view class="btn btn-default" v-if="networkType!='none'" @click="retry">
-					<text class="btn-text">重试</text>
+					<text class="btn-text">没有订单哦~点击重试</text>
 				</view>
 				<view class="btn btn-default" v-if="networkType=='none'" @click="openSettings">
 					<text class="btn-text">设置</text>
