@@ -4,13 +4,14 @@
 			<image class="picMode" style="width: 100px;height:100px;" src="../../static/img/baoxiupic.png"></image>
 			<text class="baoxiuText">报修管家</text>
 		</view>
-		<view v-if='this.showLoginButton' class="btn-row">
+		<view v-if='showLoginButton' class="btn-row">
 			<button open-type="getUserInfo" @getuserinfo="bindGetUserInfo" class="loginButton" type="primary" @click="loginMp" >微信用户一键登录</button>
 		</view>
 	</view>
 </template>
 
 <script>
+	import { responseCode } from '../../common/constants.js'
 	export default {
 		data() {
 			return {
@@ -102,7 +103,7 @@
 				}).then((res) => {
 					uni.hideLoading()
 					console.log(res);
-					if (res.result.status !== 0) {
+					if (res.result.status !== responseCode.success) {
 						return Promise.reject(new Error(res.result.msg))
 					}
 					res.result.userId;
@@ -113,7 +114,7 @@
 					uni.showModal({
 						content: '登录成功，token已存储',
 						showCancel: false,
-						success() {
+						success:()=> {
 							this.getRoleById(res.result.token)
 						}
 					})
@@ -152,15 +153,17 @@
 				}).then((res) => {
 					uni.hideLoading()
 					console.log(res.result)
-					if(res.result.status === "200")
+					if(res.result.status === responseCode.success)
 					{
 						uni.switchTab({
 							url: '/pages/home/userHome'
 						})
-					}else{
+					}else if(res.result.status === responseCode.failed){
 						uni.navigateTo({
-							url: '/pages/home/repaiHome'
+							url: '/pages/role/role'
 						})
+					}else if(res.result.status === responseCode.needCertification){
+						this.showLoginButton = true;
 					}
 				}).catch((err) => {
 					uni.hideLoading()

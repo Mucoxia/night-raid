@@ -39,7 +39,6 @@ export default {
 <style lang="scss" scoped>
 .container {
 	width: 100%;
-	height: 100%;
 	display: flex;
 	background-color: #e6e6e6;
 	flex-direction: column;

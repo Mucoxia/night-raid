@@ -35,7 +35,7 @@
 	// #endif
 
 	import newsPage from './news-page.nvue';
-
+	import global_ from '../../utils/global.vue'
 	// 缓存每页最多
 	const MAX_CACHE_DATA = 100;
 	// 缓存页签数量
@@ -47,7 +47,7 @@
 			newsPage
 		},
 		onLoad() {
-			console.log("inininin")
+			console.log("load")
 		},
 		data() {
 			return {
@@ -70,6 +70,7 @@
 			}
 		},
 		onReady() {
+			console.log('ready')
 			this._lastTabIndex = 0;
 			this.swiperWidth = 0;
 			this.tabbarWidth = 0;

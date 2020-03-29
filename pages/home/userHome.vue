@@ -3,8 +3,8 @@
 		<view class='upload-picture-loading' v-if='showPictureLoading'>
 			<cmd-circle type="circle" :percent="uploadPicturePercent" :width='40' font-color="#000000" :font-size="10"></cmd-circle>
 		</view>
-		<view v-show="role==-1" class="outer">
-			<form @submit="formSubmit" @reset="formReset">
+		<view v-show="role==1" class="outer">
+			<form @submit="formSubmit">
 				<view class="uni-form-item uni-column">
 					<div class="label">
 						<span class="text">地址</span>
@@ -54,8 +54,9 @@
 						</view>
 					</div>
 				</view>
-				<view class="uni-btn-v"><button form-type="submit" class="submit_btn">提交</button></view>
+				<view class="uni-btn-v"><button  form-type="submit" class="submit_btn">提交</button></view>
 			</form>
+			
 		</view>
 		<view  v-show="role==0" class="orderContent">
 			<orderList class="orderContent"></orderList>
@@ -63,26 +64,18 @@
 	</view>
 </template>
 <script>
-	
 	import cmdCircle from "@/components/cmd-circle/cmd-circle.vue"
 	import orderList from "../news/index.vue"
-import global_ from '../../utils/global.vue'//引用模块进来
-
-
+	import { responseCode } from '../../common/constants.js'
 	export default {
 		components: {
 			cmdCircle,
 			orderList
 		},
-		onShow: () => {
-			console.log(global_.role)
-			uni.setTabBarItem({
-			  index: 0,
-			  text: 'asdas',
-			  fail: (msg) => {
-			  	console.log(msg)
-			  }
-			})
+		onShow(){
+			console.log(uni.getStorageSync('role'))
+			this.role=uni.getStorageSync('role')
+			console.log(this.role)
 		},
 		data() {
 			return {
@@ -90,20 +83,26 @@ import global_ from '../../utils/global.vue'//引用模块进来
 				addressArray: ['4楼', '5楼', '6楼', '7楼', '8楼', '12楼', '13楼'],
 				deviceIndex: 0,
 				addressIndex: 0,
-				role: global_.role,//全局变量,
-				uploadPicturePercent: 40,
+				role: -1,
+				uploadPicturePercent: 0,
 				pictureUrls: [],
 				showPictureLoading: false,
 			};
 		},
+		activated(){
+		      /** 执行页面数据刷新的方法 */
+		     reload();
+			 console.log('activated')
+		 },
 		methods: {
 			handleDelete(index) {
 				console.log(index)
 				this.pictureUrls.splice(index, 1)
 			},
-			formSubmit: function(e) {
+			formSubmit:function(e){
 				var formdata = e.detail.value;
-				formdata.device = this.array[formdata.device];
+				formdata.device = this.deviceArray[formdata.device];
+				formdata.address = this.addressArray[formdata.address]
 				formdata.picture = this.pictureUrls;
 				uni.showLoading({
 					title: '创建报修单中...'
@@ -111,17 +110,16 @@ import global_ from '../../utils/global.vue'//引用模块进来
 				const data = JSON.stringify(formdata);
 				uniCloud
 					.callFunction({
-						name: 'order',
+						name: 'createOrder',
 						data: {
-							openId,
-							token,
+							token:uni.getStorageSync('token'),
 							data
 						}
 					})
 					.then(res => {
 						console.log(res);
 						uni.hideLoading();
-						if (res.result.status !== 0) {
+						if (res.result.status !== responseCode.success) {
 							return Promise.reject(new Error(res.result.msg));
 						}
 						uni.setStorageSync('token', res.result.token);
@@ -161,6 +159,7 @@ import global_ from '../../utils/global.vue'//引用模块进来
 							success: (res) => {
 								if (res.tempFilePaths.length > 0) {
 									let filePath = res.tempFilePaths[0]
+									this.showPictureLoading=true
 									uniCloud.uploadFile({
 										filePath: filePath,
 										onUploadProgress: (progressEvent) => {
@@ -181,7 +180,9 @@ import global_ from '../../utils/global.vue'//引用模块进来
 												showCancel: false
 											})
 										},
-										complete() {}
+										complete:() =>{
+											this.showPictureLoading=false
+										}
 									});
 
 								}

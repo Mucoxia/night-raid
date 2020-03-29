@@ -47,16 +47,19 @@ export default {
 						content: '选择角色成功',
 						showCancel: false,
 						success: () => {
-							uni.navigateBack();
+							uni.switchTab({
+								url: '/pages/home/userHome'
+							})
 						}
 					});
 					uni.setStorage({
-						role:role
-					})
-					global_.role=role
-					if(role===0){
-						
-					}
+					    key: 'role',
+					    data: role,
+					    success: function () {
+					        console.log(role);
+					    }
+					});
+					
 
 				})
 				.catch(err => {
@@ -79,7 +82,6 @@ export default {
 	align-items: center;
 	justify-content: flex-start;
 	width: 100%;
-	height: 100%;
 }
 .title {
 	padding:20px 0px;
