@@ -4,14 +4,13 @@
 			<image class="picMode" style="width: 100px;height:100px;" src="../../static/img/baoxiupic.png"></image>
 			<text class="baoxiuText">报修管家</text>
 		</view>
-		<view v-if='showLoginButton' class="btn-row">
+		<view v-if='this.showLoginButton' class="btn-row">
 			<button open-type="getUserInfo" @getuserinfo="bindGetUserInfo" class="loginButton" type="primary" @click="loginMp" >微信用户一键登录</button>
 		</view>
 	</view>
 </template>
 
 <script>
-	import { responseCode } from '../../common/constants.js'
 	export default {
 		data() {
 			return {
@@ -55,44 +54,36 @@
 				uniCloud.callFunction({
 					name: 'validateToken',
 					data: {
-						token: uni.getStorageSync('token') // token最好不要每次从storage内取
+						token: uni.getStorageSync('token') // token最好不要每次从storage内取，本示例为了简化演示代码才这么写
 					}
 				}).then((res) => {
 					uni.hideLoading()
-					if(res.status===0){
-					uni.switchTab({
-						url: '/pages/home/userHome'
-					})
-					}else{
-					this.showLoginButton = true;
-					}
+					this.getRoleById(uni.getStorageSync('token'))
 				}).catch((err) => {
 					uni.hideLoading()
 					this.showLoginButton = true;
 				})
 				uni.getSetting({
 					provider:uni.getProvider(),
-					success:(res)=>{
+					success:function(res){
 						console.log('success get Setting')
 						if (res.authSetting['scope.userInfo']) {
 						    uni.getUserInfo({
 								provider:"weixin",
 						        success: function(res) {
 						        // 用户已经授权过
+								console.log("1111111");
 								console.log(res);
 								uni.setStorageSync('userInfo', res.userInfo)
 								
 						        }
 						    });
 						} else {
-							console.log('没有授权')	
-						   this.showLoginButton = true;
+							console.log('没有授权')				
 						}
 					},
-					fail:(res)=>{
+					fail:function(res){
 						console.log(res)	
-						this.showLoginButton = true;
-						
 					}
 				})
 			},
@@ -111,7 +102,7 @@
 				}).then((res) => {
 					uni.hideLoading()
 					console.log(res);
-					if (res.result.status !== responseCode.success) {
+					if (res.result.status !== 0) {
 						return Promise.reject(new Error(res.result.msg))
 					}
 					res.result.userId;
@@ -123,9 +114,8 @@
 						content: '登录成功，token已存储',
 						showCancel: false,
 						success() {
-							uni.switchTab({
-								url: '/pages/home/home'
-							})						}
+							this.getRoleById(res.result.token)
+						}
 					})
 				}).catch((err) => {
 					console.log(err);
@@ -144,7 +134,7 @@
 							if (e.code) {
 								resolve(e.code)
 							} else {
-								reject(new Error('微信登录失败'))
+								reject(new Error('微信登录失败1'))
 							}
 						},
 						fail(e) {
@@ -153,7 +143,33 @@
 					})
 				})
 			},
-			
+			getRoleById(TokenId){
+				uniCloud.callFunction({
+					name: 'getRoleById',
+					data: {
+						token: TokenId,
+					}
+				}).then((res) => {
+					uni.hideLoading()
+					console.log(res.result)
+					if(res.result.status === "200")
+					{
+						uni.switchTab({
+							url: '/pages/home/userHome'
+						})
+					}else{
+						uni.navigateTo({
+							url: '/pages/home/repaiHome'
+						})
+					}
+				}).catch((err) => {
+					uni.hideLoading()
+					uni.showModal({
+						content: '出现错误，请稍后再试.' + err.message,
+						showCancel: false
+					})
+				})
+			}
 		}
 	}
 </script>

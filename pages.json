@@ -49,7 +49,7 @@
 		"borderStyle": "black",
 		"backgroundColor": "#F8F8F8",
 		"list": [{
-				"pagePath": "pages/home/home",
+				"pagePath": "pages/home/userHome",
 				"iconPath": "static/tabbar/repair.png",
 				"selectedIconPath": "static/tabbar/repair_selected.png",
 				"text": "报修"

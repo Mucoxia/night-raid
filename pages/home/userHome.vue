@@ -3,7 +3,7 @@
 		<view class='upload-picture-loading' v-if='showPictureLoading'>
 			<cmd-circle type="circle" :percent="uploadPicturePercent" :width='40' font-color="#000000" :font-size="10"></cmd-circle>
 		</view>
-		<view v-show="user" class="outer">
+		<view v-show="role==-1" class="outer">
 			<form @submit="formSubmit" @reset="formReset">
 				<view class="uni-form-item uni-column">
 					<div class="label">
@@ -57,17 +57,16 @@
 				<view class="uni-btn-v"><button form-type="submit" class="submit_btn">提交</button></view>
 			</form>
 		</view>
-		<view v-show="!user" class="orderContent">
+		<view  v-show="role==0" class="orderContent">
 			<orderList class="orderContent"></orderList>
 		</view>
 	</view>
 </template>
 <script>
-	import {
-		apiOrders
-	} from '../../api/requestOrder.js';
+	
 	import cmdCircle from "@/components/cmd-circle/cmd-circle.vue"
 	import orderList from "../news/index.vue"
+import global_ from '../../utils/global.vue'//引用模块进来
 
 
 	export default {
@@ -75,16 +74,23 @@
 			cmdCircle,
 			orderList
 		},
-		
+		onShow: () => {
+			console.log(global_.role)
+			uni.setTabBarItem({
+			  index: 0,
+			  text: 'asdas',
+			  fail: (msg) => {
+			  	console.log(msg)
+			  }
+			})
+		},
 		data() {
 			return {
-				goods: [], // 数据列表
-				isGoodsEdit: false, // 是否加载编辑后的数据
 				deviceArray: ['电脑', '软件', '系统'],
 				addressArray: ['4楼', '5楼', '6楼', '7楼', '8楼', '12楼', '13楼'],
 				deviceIndex: 0,
 				addressIndex: 0,
-				user: false,
+				role: global_.role,//全局变量,
 				uploadPicturePercent: 40,
 				pictureUrls: [],
 				showPictureLoading: false,

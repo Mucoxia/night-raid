@@ -17,7 +17,8 @@
 
 <script>
 import cmdAvatar from '@/components/cmd-avatar/cmd-avatar.vue';
-import { responseCode } from '../../common/constants.js'
+import { responseCode } from '../../common/constants.js';
+import global_ from '../../utils/global.vue'
 export default {
 	data() {
 		return {};
@@ -52,6 +53,7 @@ export default {
 					uni.setStorage({
 						role:role
 					})
+					global_.role=role
 					if(role===0){
 						
 					}
