@@ -58,9 +58,7 @@
 					}
 				}).then((res) => {
 					uni.hideLoading()
-					uni.switchTab({
-						url: '/pages/home/userHome'
-					})
+					this.getRoleById(uni.getStorageSync('token'))
 				}).catch((err) => {
 					uni.hideLoading()
 					this.showLoginButton = true;
@@ -116,9 +114,7 @@
 						content: '登录成功，token已存储',
 						showCancel: false,
 						success() {
-							uni.switchTab({
-								url: '/pages/home/userHome'
-							})
+							this.getRoleById(res.result.token)
 						}
 					})
 				}).catch((err) => {
@@ -147,7 +143,33 @@
 					})
 				})
 			},
-			
+			getRoleById(TokenId){
+				uniCloud.callFunction({
+					name: 'getRoleById',
+					data: {
+						token: TokenId,
+					}
+				}).then((res) => {
+					uni.hideLoading()
+					console.log(res.result)
+					if(res.result.status === "200")
+					{
+						uni.switchTab({
+							url: '/pages/home/userHome'
+						})
+					}else{
+						uni.navigateTo({
+							url: '/pages/home/repaiHome'
+						})
+					}
+				}).catch((err) => {
+					uni.hideLoading()
+					uni.showModal({
+						content: '出现错误，请稍后再试.' + err.message,
+						showCancel: false
+					})
+				})
+			}
 		}
 	}
 </script>
