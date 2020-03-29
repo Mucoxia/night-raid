@@ -1,4 +1,7 @@
 const db = uniCloud.database()
+const {
+	responseCode,
+} = require('../../../../common/constants.js')
 async function report(event) {
   try {
     return await uniCloud.callFunction({
@@ -8,7 +11,7 @@ async function report(event) {
   } catch (e) {
     //TODO handle the exception
     return {
-      status: -2,
+      status: responseCode.needCertification,
       errCode: 'TOKEN_INVALID',
       msg: 'token无效'
     }

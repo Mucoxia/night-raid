@@ -4,15 +4,13 @@ const {
 } = require('../../../../common/constants.js') //查看订单无需登录
 const db = uniCloud.database()
 async function getOrder(event) {
-	const count = event.pageSize
-	const page = event.pageNum
-	const pageCount = 10
+	const pageSize = event.pageSize
+	const pageNum = event.pageNum
 	let type = orderState.initState
-	let res = await db.collection('order').where({ //只返回未接单的订单
-		type: type
-	}).limit(page * pageCount, count).get()
+	let start = pageNum*pageSize
+	let res = await db.collection('order').skip(start).limit(pageSize).get()
 
-	if (res.data.length > 0) {
+	if (res.data&&res.data.length > 0) {
 		return {
 			status: responseCode.success,
 			msg: res.data

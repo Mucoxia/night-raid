@@ -41,6 +41,7 @@
 	import uniLoadMore from '@/components/uni-load-more.vue';
 	import noData from '@/components/nodata.nvue';
 	import newsItem from './news-item.nvue';
+	import { responseCode } from '../../common/constants.js'
 
 	export default {
 		components: {
@@ -59,7 +60,7 @@
 		},
 		data() {
 			return {
-				pageNum: 1,
+				pageNum: 0,
 				dataList: [],
 				pulling: false,
 				refreshing: false,
@@ -82,7 +83,7 @@
 			this.requestParams = {
 				// columnId:this.openId,
 				// pageId:this.pageId,
-				pageSize: 10,
+				pageSize:8,
 				pageNum: this.pageNum,
 			};
 		},
@@ -91,7 +92,8 @@
 				if (this.isLoading) {
 					return;
 				}
-
+				this.requestParams.pageNum=this.pageNum
+				console.log(this.requestParams)
 				this.isLoading = true;
 				this.isNoData = false;
 
@@ -101,6 +103,7 @@
 						data: this.requestParams,
 					})
 					.then(res => {
+						console.log(res)
 						this.isLoading = false;
 						if (refresh) {
 							this.refreshing = false;
@@ -113,7 +116,11 @@
 								this.pulling = false;
 							}, 1000);
 						}
-						this.isNoData = (res.result.msg.length <= 0);
+						if(res.result.status == responseCode.failed){
+							this.isNoData = true;
+							return;
+						}
+						this.isNoData = false;
 						console.log(res.result.msg)
 						const data_list = res.result.msg.map((news) => {
 							return {
@@ -133,7 +140,7 @@
 						console.log(data_list)
 						if (refresh) {
 							this.dataList = data_list;
-							this.pageNum = 1;
+							this.pageNum = 0;
 						} else {
 							this.dataList = this.dataList.concat(data_list);
 							this.pageNum += 1;

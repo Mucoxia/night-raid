@@ -1,12 +1,14 @@
 const jwt = require('jwt-simple')
-
+const {
+	responseCode,
+} = require('../../../common/constants.js') 
 const db = uniCloud.database()
 async function validateToken(token) {
   const userFromToken = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString())
   const userInDB = await db.collection('user').where(userFromToken).get()
   if (userInDB.data.length !== 1) {
     return {
-      status: -1,
+      status: responseCode.failed,
       msg: '查无此人'
     }
   }
@@ -24,7 +26,7 @@ async function validateToken(token) {
 
   if (userInfoDB.exp > Date.now() && checkUser(userFromToken, userInfoDB)) {
     return {
-      status: 0,
+      status: responseCode.success,
       openid: userInfoDB.openid,
       userId: userInfoDB.userId,
       msg: 'token验证成功'
@@ -33,13 +35,13 @@ async function validateToken(token) {
 
   if (userInfoDB.exp < Date.now()) {
     return {
-      status: -3,
+      status: responseCode.needCertification,
       msg: 'token已失效'
     }
   }
 
   return {
-    status: -2,
+    status: responseCode.needCertification,
     msg: 'token无效'
   }
 

@@ -264,13 +264,16 @@ function base64urlEscape(str) {
 
 var jwtSimple = jwt_1;
 
+const {
+	responseCode: responseCode$1,
+} = constants; 
 const db = uniCloud.database();
 async function validateToken(token) {
   const userFromToken = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
   const userInDB = await db.collection('user').where(userFromToken).get();
   if (userInDB.data.length !== 1) {
     return {
-      status: -1,
+      status: responseCode$1.failed,
       msg: '查无此人'
     }
   }
@@ -288,7 +291,7 @@ async function validateToken(token) {
 
   if (userInfoDB.exp > Date.now() && checkUser(userFromToken, userInfoDB)) {
     return {
-      status: 0,
+      status: responseCode$1.success,
       openid: userInfoDB.openid,
       userId: userInfoDB.userId,
       msg: 'token验证成功'
@@ -297,13 +300,13 @@ async function validateToken(token) {
 
   if (userInfoDB.exp < Date.now()) {
     return {
-      status: -3,
+      status: responseCode$1.needCertification,
       msg: 'token已失效'
     }
   }
 
   return {
-    status: -2,
+    status: responseCode$1.needCertification,
     msg: 'token无效'
   }
 
@@ -315,7 +318,7 @@ var validateToken_1 = {
 
 const db$1 = uniCloud.database();
 const {
-	responseCode: responseCode$1,
+	responseCode: responseCode$2,
 } = constants;
 const {
 	validateToken: validateToken$1
@@ -330,7 +333,7 @@ async function setRole(event) {
 		validateResult = await validateToken$1(token);
 	} catch (e) {
 		return {
-			status: responseCode$1.needCertification,
+			status: responseCode$2.needCertification,
 			msg: 'token无效'
 		}
 	}
@@ -345,12 +348,12 @@ async function setRole(event) {
 	});
 	if (roleUpdateResult.affectedDocs === 1) {
 		return {
-			status: responseCode$1.success,
+			status: responseCode$2.success,
 			msg: '设置用户角色成功'
 		}
 	}
 	return {
-		status: responseCode$1.failed,
+		status: responseCode$2.failed,
 		msg: '设置用户角色失败'
 	}
 }
