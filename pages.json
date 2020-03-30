@@ -1,5 +1,6 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		
 		{
 			"path": "pages/index/index",
 			"style": {
@@ -7,11 +8,11 @@
 			}
 		},
 		{
-			"path": "pages/home/userHome",
+			"path": "pages/news/index",
 			"style": {}
 		},
 		{
-			"path": "pages/news/index",
+			"path": "pages/home/userHome",
 			"style": {}
 		},
 
@@ -32,10 +33,6 @@
 			"style": {}
 		}
 		
-	    ,{
-            "path" : "pages/home/home",
-            "style" : {}
-        }
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
@@ -49,7 +46,8 @@
 		"borderStyle": "black",
 		"backgroundColor": "#F8F8F8",
 		"list": [{
-				"pagePath": "pages/home/userHome",
+				//"pagePath": "pages/home/userHome",
+				"pagePath": "pages/news/index",
 				"iconPath": "static/tabbar/repair.png",
 				"selectedIconPath": "static/tabbar/repair_selected.png",
 				"text": "报修"
