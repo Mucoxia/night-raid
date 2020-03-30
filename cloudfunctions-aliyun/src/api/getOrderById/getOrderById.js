@@ -7,9 +7,12 @@ const {
 	orderState
 } = require('../../../../common/constants.js')
 const db = uniCloud.database()
-async function getOrderById(event) {//获取用户创建的订单数据  传入用户的openid
+async function getOrderById(event) { 
 	const token = event.token
-	let openid = event.openid
+	const pageSize = event.pageSize
+	const pageNum = event.pageNum
+	const role = event.role
+	let start = pageNum * pageSize
 	let validateResult
 	try {
 		validateResult = await validateToken(token)
@@ -22,13 +25,18 @@ async function getOrderById(event) {//获取用户创建的订单数据  传入�
 	if (validateResult.status !== 0) {
 		return validateResult
 	}
-
-	let res = await db.collection('order').where({//查找已接单状态订单
-	  maintainer_id: openid,
-	  type: orderState.received
-	}).get()
-	
-	if (res.data.length > 0) {
+	let openid = validateResult.openid
+	if (role == 0) {
+		let res = await db.collection('order').where({
+			repairer_id: openid
+		}).skip(start).limit(pageSize).get()
+	} else if (role == 1) {
+		let res = await db.collection('order').where({ //查找已接单状态订单
+			maintainer_id: openid,
+			type: orderState.received
+		}).skip(start).limit(pageSize).get()
+	}
+	if (res.data && res.data.length > 0) {
 		return {
 			status: responseCode.success,
 			msg: res.data

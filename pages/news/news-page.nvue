@@ -154,6 +154,7 @@
 							this.dataList = this.dataList.concat(data_list);
 							this.pageNum += 1;
 						}
+						this.isNoData = this.dataList<=0;
 					})
 					.catch((err) => {
 						this.isLoading = false;

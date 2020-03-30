@@ -8,7 +8,7 @@ async function getOrder(event) {
 	const pageNum = event.pageNum
 	let type = orderState.initState
 	let start = pageNum*pageSize
-	let res = await db.collection('order').skip(start).limit(pageSize).get()
+	let res = await db.collection('order').where({type:type}).skip(start).limit(pageSize).get()
 
 	if (res.data&&res.data.length > 0) {
 		return {
