@@ -9,17 +9,13 @@
 						<text class="uni-tab-item-title" :class="tabIndex==index ? 'uni-tab-item-title-active' : ''">{{tab.name}}</text>
 					</view>
 				</view>
-				<view class="scroll-view-indicator">
-					<view ref="underline" class="scroll-view-underline" :class="isTap ? 'scroll-view-animation':''" :style="{left: indicatorLineLeft + 'px', width: indicatorLineWidth + 'px'}"></view>
-				</view>
 			</view>
 		</scroll-view>
 		<view class="tab-bar-line"></view>
 		<swiper class="tab-box" ref="swiper1" :current="tabIndex" :duration="300" @change="onswiperchange" @transition="onswiperscroll"
 		 @animationfinish="animationfinish" @onAnimationEnd="animationfinish">
 			<swiper-item class="swiper-item" v-for="(page, index) in tabList" :key="index">
-				<userHome v-show="role === 0" class="page-item"></userHome>
-				<newsPage v-show="role === 1" class="page-item" :nid="page.newsid" ref="page"></newsPage>
+				<newsPage class="page-item" :role="this.role" :pageid="page.pageid" ref="page"></newsPage>
 			</swiper-item>
 		</swiper>
 	</view>
@@ -52,6 +48,19 @@
 			console.log(uni.getStorageSync('role'))
 			this.role=uni.getStorageSync('role')
 			console.log(this.role === 0)
+			if(this.role === 0){
+				this.tabList[0] = {
+					id: "tab01",
+					name: '报修',
+					pageid: 2
+				}
+			}else{
+				this.tabList[0] = {
+					id: "tab01",
+					name: '大厅',
+					pageid: 0
+				}
+			}
 		},
 		data() {
 			return {
@@ -72,15 +81,6 @@
 				indicatorLineLeft: 0,
 				indicatorLineWidth: 0,
 				isTap: false
-			}
-		},
-		created() {
-			if(this.role === 0){
-				this.tabList[0] = {
-					id: "tab01",
-					name: '报修',
-					pageid: 2
-				}
 			}
 		},
 		onReady() {
@@ -145,14 +145,14 @@
 					this.loadTabData(preloadIndex);
 				}
 
-				// #ifdef APP-PLUS || H5 || MP-WEIXIN || MP-QQ
-				var percentage = Math.abs(this.swiperWidth / offsetX);
-				var currentSize = this.tabListSize[this._lastTabIndex];
-				var preloadSize = this.tabListSize[preloadIndex];
-				var lineL = currentSize.left + (preloadSize.left - currentSize.left) / percentage;
-				var lineW = currentSize.width + (preloadSize.width - currentSize.width) / percentage;
-				this.updateIndicator(lineL, lineW);
-				// #endif
+				// // #ifdef APP-PLUS || H5 || MP-WEIXIN || MP-QQ
+				// var percentage = Math.abs(this.swiperWidth / offsetX);
+				// var currentSize = this.tabListSize[this._lastTabIndex];
+				// var preloadSize = this.tabListSize[preloadIndex];
+				// // var lineL = currentSize.left + (preloadSize.left - currentSize.left) / percentage;
+				// var lineW = currentSize.width + (preloadSize.width - currentSize.width) / percentage;
+				// this.updateIndicator(lineL, lineW);
+				// // #endif
 			},
 			animationfinish(e) {
 				// #ifdef APP-PLUS || H5 || MP-WEIXIN || MP-QQ
@@ -162,7 +162,7 @@
 				}
 				this._lastTabIndex = index;
 				this.switchTab(index);
-				this.updateIndicator(this.tabListSize[index].left, this.tabListSize[index].width);
+				// this.updateIndicator(this.tabListSize[index].left, this.tabListSize[index].width);
 				// #endif
 			},
 			getTabbarItemsSize() {

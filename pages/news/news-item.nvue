@@ -87,6 +87,7 @@
 <style scoped>
     .view {
         flex-direction: column;
+		display: flex;
     }
 
     .flex-row {
@@ -173,6 +174,7 @@
 	}
 	
 	.addressContent {
+		display: flex;
 		flex-direction: row;
 		justify-content: space-between;
 		width: 300upx;
@@ -224,6 +226,7 @@
     }
 
     .media-foot {
+		display: flex;
         margin-top: 25upx;
         flex-direction: row;
         align-items: center;

@@ -1,37 +1,43 @@
 <template>
-	<view class="page-news">
-		<!-- #ifdef MP-QQ -->
-		<scroll-view class="listview" style="flex: 1;" enableBackToTop="true" scroll-y @scrolltolower="loadMore()">
-			<view v-for="(item, index) in dataList" :key="item.id">
-				<news-item :newsItem="item" @close="closeItem(index)"></news-item>
-			</view>
-			<view class="loading-more" v-if="isLoading || dataList.length > 4">
-				<text class="loading-more-text">{{loadingText}}</text>
-			</view>
-		</scroll-view>
-		<!-- #endif -->
-		<!-- QQ multipleSlots=true bug -->
-		<!-- #ifndef MP-QQ -->
-		<uni-list class="listview" :enableBackToTop="true" :scroll-y="true" @scrolltolower="loadMore()">
-			<uni-refresh class="refresh" @refresh="onrefresh" @pullingdown="onpullingdown" :display="refreshing ? 'show' : 'hide'">
-				<div class="refresh-view">
-					<image class="refresh-icon" :src="refreshIcon" :style="{width: (refreshing || pulling) ? 0: '32px'}" :class="{'refresh-icon-active': refreshFlag}"></image>
-					<uni-load-more v-if="refreshing" class="loading-icon" status="loading" :contentText="loadingMoreText"></uni-load-more>
-					<text class="loading-text">{{refreshText}}</text>
-				</div>
-			</uni-refresh>
-			<uni-cell v-for="(item, index) in dataList" :key="item.id">
-				<news-item :newsItem="item" @close="closeItem(index)"></news-item>
-			</uni-cell>
-			<uni-cell v-if="isLoading || dataList.length > 4">
-				<view class="loading-more">
+	<view  class="page-news">
+		<view v-show="pageid!=2"> 
+			<!-- #ifdef MP-QQ -->
+			<scroll-view class="listview" style="flex: 1;" enableBackToTop="true" scroll-y @scrolltolower="loadMore()">
+				<view v-for="(item, index) in dataList" :key="item.id">
+					<news-item :newsItem="item" @close="closeItem(index)"></news-item>
+				</view>
+				<view class="loading-more" v-if="isLoading || dataList.length > 4">
 					<text class="loading-more-text">{{loadingText}}</text>
 				</view>
-			</uni-cell>
-		</uni-list>
-		<!-- #endif -->
-		<no-data class="no-data" v-if="isNoData" @retry="loadMore"></no-data>
+			</scroll-view>
+			<!-- #endif -->
+			<!-- QQ multipleSlots=true bug -->
+			<!-- #ifndef MP-QQ -->
+			<uni-list class="listview" :enableBackToTop="true" :scroll-y="true" @scrolltolower="loadMore()">
+				<uni-refresh class="refresh" @refresh="onrefresh" @pullingdown="onpullingdown" :display="refreshing ? 'show' : 'hide'">
+					<div class="refresh-view">
+						<image class="refresh-icon" :src="refreshIcon" :style="{width: (refreshing || pulling) ? 0: '32px'}" :class="{'refresh-icon-active': refreshFlag}"></image>
+						<uni-load-more v-if="refreshing" class="loading-icon" status="loading" :contentText="loadingMoreText"></uni-load-more>
+						<text class="loading-text">{{refreshText}}</text>
+					</div>
+				</uni-refresh>
+				<uni-cell v-for="(item, index) in dataList" :key="item.id">
+					<news-item :newsItem="item" @close="closeItem(index)"></news-item>
+				</uni-cell>
+				<uni-cell v-if="isLoading || dataList.length > 4">
+					<view class="loading-more">
+						<text class="loading-more-text">{{loadingText}}</text>
+					</view>
+				</uni-cell>
+			</uni-list>
+			<!-- #endif -->
+			<no-data class="no-data" v-if="isNoData" @retry="loadMore"></no-data>
+		</view>
+		<view v-show="pageid==2"  class="page-news">
+			<userHome class="page-item" :role="this.role"></userHome>
+		</view>
 	</view>
+	
 </template>
 
 <script>
@@ -42,6 +48,7 @@
 	import noData from '@/components/nodata.nvue';
 	import newsItem from './news-item.nvue';
 	import { responseCode } from '../../common/constants.js'
+	import userHome from '../home/userHome'
 
 	export default {
 		components: {
@@ -50,13 +57,8 @@
 			uniRefresh,
 			uniLoadMore,
 			noData,
-			newsItem
-		},
-		props: {
-			nid: {
-				type: [Number, String],
-				default: ''
-			}
+			newsItem,
+			userHome
 		},
 		data() {
 			return {
@@ -82,11 +84,22 @@
 			this.pullTimer = null;
 			this.requestParams = {
 				// columnId:this.openId,
-				// pageId:this.pageId,
 				pageSize:8,
 				pageNum: this.pageNum,
-				token: uni.getStorageSync('token'),
+				// token: uni.getStorageSync('token'),
+				// role: this.role,
 			};
+			console.log(this.pageid + "pageid  page")
+		},
+		props: {
+			role: {
+				type: Number,
+				default: 0,
+			},
+			pageid: {
+				type: Number,
+				default: 0,
+			}
 		},
 		methods: {
 			loadData(refresh) {
@@ -97,10 +110,10 @@
 				console.log(this.requestParams)
 				this.isLoading = true;
 				this.isNoData = false;
-
+				
 				uniCloud
 					.callFunction({
-						name: 'getOrderById',
+						name: 'getOrder',
 						data: this.requestParams,
 					})
 					.then(res => {
@@ -165,10 +178,6 @@
 							showCancel: false
 						});
 					});
-					if(res.result.status == responseCode.failed){
-						this.isNoData = true;
-						return;
-					}
 			},
 			loadMore(e) {
 				this.loadData();
@@ -329,5 +338,10 @@
 	.loading-more-text {
 		font-size: 28upx;
 		color: #999;
+	}
+	
+	.page-item{
+		height: 100%;
+		width: 100%;
 	}
 </style>

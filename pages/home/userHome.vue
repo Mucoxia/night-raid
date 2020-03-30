@@ -1,9 +1,9 @@
 <template>
 	<view class="container">
-		<view class='upload-picture-loading' v-if='showPictureLoading'>
+		<!-- <view class='upload-picture-loading' v-if='showPictureLoading'>
 			<cmd-circle type="circle" :percent="uploadPicturePercent" :width='40' font-color="#000000" :font-size="10"></cmd-circle>
-		</view>
-		<view v-show="role==1" class="outer">
+		</view> -->
+		<view class="outer">
 			<form @submit="formSubmit">
 				<view class="uni-form-item uni-column">
 					<div class="label">
@@ -48,7 +48,7 @@
 						<view class='detail-img-wrapper'>
 							<view class='detail-img-outer' v-for="(url,index) in pictureUrls" :key='index'>
 								<img class='detail-img' :src='url' />
-								<img class='detail-delete-img' src='../../static/home/delete.png' @click='handleDelete(index)' />
+								<!-- <img class='detail-delete-img' src='../../static/home/delete.png' @click='handleDelete(index)' /> -->
 							</view>
 
 						</view>
@@ -56,26 +56,22 @@
 				</view>
 				<view class="uni-btn-v"><button  form-type="submit" class="submit_btn">提交</button></view>
 			</form>
-			
-		</view>
-		<view  v-show="role==0" class="orderContent">
-			<orderList class="orderContent"></orderList>
 		</view>
 	</view>
 </template>
 <script>
-	import cmdCircle from "@/components/cmd-circle/cmd-circle.vue"
-	import orderList from "../news/index.vue"
+	// import cmdCircle from "@/components/cmd-circle/cmd-circle.vue"
+	// import orderList from "../news/index.vue"
 	import { responseCode } from '../../common/constants.js'
 	export default {
 		components: {
-			cmdCircle,
-			orderList
+			// cmdCircle,
+			// orderList
 		},
 		onShow(){
-			console.log(uni.getStorageSync('role'))
+			console.log("user:"+uni.getStorageSync('role'))
 			this.role=uni.getStorageSync('role')
-			console.log(this.role)
+			console.log("user:"+this.role)
 		},
 		data() {
 			return {
@@ -238,6 +234,7 @@
 	.container {
 		background-color: #e6e6e6;
 		width: 100%;
+		height: 80%;
 	}
 
 	.detail {

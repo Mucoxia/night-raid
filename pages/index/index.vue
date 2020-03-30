@@ -2,7 +2,7 @@
 	<view class="content white">
 		<view class="picWrapper">
 			<image class="picMode" style="width: 100px;height:100px;" src="../../static/img/baoxiupic.png"></image>
-			<text class="baoxiuText">报修管家</text>
+			<text class="baoxiuText">小浦报修</text>
 		</view>
 		<view v-if='showLoginButton' class="btn-row">
 			<button open-type="getUserInfo" @getuserinfo="bindGetUserInfo" class="loginButton" type="primary" @click="loginMp" >微信用户一键登录</button>
