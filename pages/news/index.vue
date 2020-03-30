@@ -18,12 +18,8 @@
 		<swiper class="tab-box" ref="swiper1" :current="tabIndex" :duration="300" @change="onswiperchange" @transition="onswiperscroll"
 		 @animationfinish="animationfinish" @onAnimationEnd="animationfinish">
 			<swiper-item class="swiper-item" v-for="(page, index) in tabList" :key="index">
-				<!-- #ifndef MP-ALIPAY -->
-				<newsPage class="page-item" :nid="page.newsid" ref="page"></newsPage>
-				<!-- #endif -->
-				<!-- #ifdef MP-ALIPAY -->
-				<newsPage class="page-item" :nid="page.newsid" :ref="'page' + index"></newsPage>
-				<!-- #endif -->
+				<userHome v-show="role === 0" class="page-item"></userHome>
+				<newsPage v-show="role === 1" class="page-item" :nid="page.newsid" ref="page"></newsPage>
 			</swiper-item>
 		</swiper>
 	</view>
@@ -35,7 +31,9 @@
 	// #endif
 
 	import newsPage from './news-page.nvue';
-	import global_ from '../../utils/global.vue'
+	// import global_ from '../../utils/global.vue'
+	import userHome from '../home/userHome.vue'
+	
 	// 缓存每页最多
 	const MAX_CACHE_DATA = 100;
 	// 缓存页签数量
@@ -44,13 +42,20 @@
 
 	export default {
 		components: {
-			newsPage
+			newsPage,
+			userHome
 		},
 		onLoad() {
 			console.log("load")
 		},
+		onShow(){
+			console.log(uni.getStorageSync('role'))
+			this.role=uni.getStorageSync('role')
+			console.log(this.role === 0)
+		},
 		data() {
 			return {
+				role: 0,
 				tabList: [{
 					id: "tab01",
 					name: '大厅',
@@ -67,6 +72,15 @@
 				indicatorLineLeft: 0,
 				indicatorLineWidth: 0,
 				isTap: false
+			}
+		},
+		created() {
+			if(this.role === 0){
+				this.tabList[0] = {
+					id: "tab01",
+					name: '报修',
+					pageid: 2
+				}
 			}
 		},
 		onReady() {
@@ -315,6 +329,7 @@
 
 	.tab-box {
 		flex: 1;
+		height: 100%;
 	}
 
 	.uni-tab-item {

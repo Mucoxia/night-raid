@@ -156,7 +156,8 @@
 					if(res.result.status === responseCode.success)
 					{
 						uni.switchTab({
-							url: '/pages/home/userHome'
+							//url: '/pages/home/userHome'
+							 url: '/pages/news/index'
 						})
 					}else if(res.result.status === responseCode.failed){
 						uni.navigateTo({

@@ -18,7 +18,7 @@
 <script>
 import cmdAvatar from '@/components/cmd-avatar/cmd-avatar.vue';
 import { responseCode } from '../../common/constants.js';
-import global_ from '../../utils/global.vue'
+// import global_ from '../../utils/global.vue'
 export default {
 	data() {
 		return {};
@@ -48,7 +48,8 @@ export default {
 						showCancel: false,
 						success: () => {
 							uni.switchTab({
-								url: '/pages/home/userHome'
+								// url: '/pages/home/userHome'
+								url: '/pages/news/index'
 							})
 						}
 					});
